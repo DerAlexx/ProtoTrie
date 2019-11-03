@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ob-vss-ws19/tree"
+	"github.com/ob-vss-ws19/blatt-3-pwn/tree"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 )
