@@ -82,6 +82,13 @@ func (state *Nodeactor) Delete(key int) (bool, error) {
 }
 
 /*
+ChangeValueMessage a entry from the Trie.
+*/
+func (state *Nodeactor) ChangeValueMessage(pair Pair) (bool, error) {
+	return false, nil
+}
+
+/*
 StoringNodeBehavior Method to set the Behavior of a Node to a Storing Node.
 So it will have to leafs as childs and store information in this leafs.
 */
