@@ -50,19 +50,19 @@ func main() {
 	deleteTrie := flag.Bool("delete-trie", false, "If this flag is set your trie will be deleted ~ DANGEROUS")
 
 	flag.Parse()
-	if *insertBool != false && *key != -1 && *value != "" {
+	if *insertBool && *key != -1 && *value != "" {
 		sendInsert(*ID, *token, tree.Pair{
-			Key:   int(*key),
+			Key:   *key,
 			Value: *value,
 		})
-	} else if *changeBool != false && *key != -1 && *value != "" {
+	} else if *changeBool && *key != -1 && *value != "" {
 		sendChange(*ID, *token, tree.Pair{
-			Key:   int(*key),
+			Key:   *key,
 			Value: *value,
 		})
 	} else if *delete != -1 {
 		sendDelete(*ID, *token, *key)
-	} else if *deleteTrie != false {
+	} else if *deleteTrie {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Are sure you wanna delete the trie (y/n)")
 		text, _ := reader.ReadString('\n')
