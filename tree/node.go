@@ -52,7 +52,8 @@ type Pair struct {
 Nodeactor is
 */
 type Nodeactor struct {
-	behavior     actor.Behavior
+	Behavior     actor.Behavior
+	Storable     int64
 	LeftElement  interface{}
 	RightElement interface{}
 }
