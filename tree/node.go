@@ -2,22 +2,9 @@ package tree
 
 import (
 	"fmt"
-	"reflect"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 )
-
-/*
-Pingmessage will
-*/
-type Pingmessage struct {
-}
-
-/*
-Stacklimittracemessage will
-*/
-type Stacklimittracemessage struct {
-}
 
 /*
 Insertmessage str
@@ -41,7 +28,7 @@ type ChangeValueMessage struct {
 }
 
 /*
-Pair r
+Pair is a representation of a Keys Value Combinations
 */
 type Pair struct {
 	Key   int
@@ -61,8 +48,8 @@ type Nodeactor struct {
 /*
 CreateBasicNode will return a Basic node containing the parentnode and a left, right leaf.
 */
-func CreateBasicNode() Nodeactor {
-	return Nodeactor{
+func CreateBasicNode() *Nodeactor {
+	return &Nodeactor{
 		LeftElement:  NewLeaf(),
 		RightElement: NewLeaf(),
 	}
@@ -116,24 +103,8 @@ func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 }
 
 /*
-Receive will
+Receive will recieve some messages and direct them to the nodes
 */
 func (state *Nodeactor) Receive(context actor.Context) {
-	switch msg := context.Message().(type) {
-	case *Pingmessage:
-		fmt.Println("Ping")
 
-	case *Stacklimittracemessage:
-		fmt.Println("42")
-
-	case *Insertmessage:
-		fmt.Println(msg.Element.Key)
-		n := Nodeactor{
-			LeftElement:  12,
-			RightElement: "Hello",
-		}
-		fmt.Println(reflect.TypeOf(n.LeftElement), reflect.TypeOf(n.RightElement))
-		n.LeftElement = "3"
-		fmt.Println(reflect.TypeOf(n.LeftElement), reflect.TypeOf(n.RightElement))
-	}
 }

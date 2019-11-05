@@ -23,7 +23,6 @@ func sendInsert(id int, token string, pair tree.Pair) (bool, error) {
 
 	return false, nil
 }
-
 func sendCreateTrie(size int) (bool, error) {
 
 	return false, nil
