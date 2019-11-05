@@ -24,7 +24,7 @@ TrieContainer is a container for a Trie containing a Rootnode a Token and the PI
 type TrieContainer struct {
 	Root  *actor.Props
 	Token Token
-	Pid   actor.PID
+	Pid   *actor.PID
 }
 
 /*
@@ -52,8 +52,11 @@ func getRandomID() int {
 	}
 }
 
+/*
+getPID will return the PID of the rootnode of a given Trie-ID
+*/
 func getPID(id ID) *actor.PID {
-	return nil
+	return RootNodes[id].Pid
 }
 
 /*
@@ -76,9 +79,26 @@ func addNewTrie(context *actor.RootContext) (ID, Token, actor.PID) {
 	addInToRootsMap(id, TrieContainer{
 		Root:  props,
 		Token: token,
-		Pid:   *pid,
+		Pid:   pid,
 	})
 	return id, token, *pid
+}
+
+/*
+matchIDandToken will check whether a given token and id match.
+Will return true in case they do otherwise false.
+*/
+func matchIDandToken(id ID, gtoken Token) bool {
+	return RootNodes[id].Token == gtoken
+}
+
+/*
+deleteTrie will delete a Trie
+*/
+func deleteTrie(id ID, token Token) {
+	if matchIDandToken(id, token) {
+		delete(RootNodes, id)
+	}
 }
 
 func main() {
