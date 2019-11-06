@@ -1,4 +1,14 @@
 syntax = "proto3";
 package messages;
+import "actor.proto";
 
-message HelloWorld {}
+message Request {
+    actor.PID Sender = 1;
+    string Message = 2;
+    string Token = 3;
+    int Id = 4;
+}
+
+message Response {
+  string SomeValue = 1;
+}

@@ -74,4 +74,33 @@ func main() {
 	} else {
 		fmt.Println("Please make sure your given arguments fit the required pattern for more info enter .. -h")
 	}
+
+	type ClientRemoteActor struct {
+		count int
+	}
+
+	func (state *ServerRemoteActor) Receive(context actor.Context) {
+		switch context.Message().(type) {
+		case *messages.Response:
+			state.count++
+			fmt.Println(state.count)
+		}
+	}
+
+	func remotesend() {
+
+		remote.Start("localhost:8090")
+	
+		context := actor.EmptyRootContext
+		props := actor.PropsFromProducer(func() actor.Actor { return &ClientRemoteActor{} })
+		pid, _ := context.Spawn(props)
+		message := &messages.Request{Id = "insertGetId", Token = "insertGetToken", Message: "Befehl", Sender: pid}
+	
+		// this is to spawn remote actor we want to communicate with
+		spawnResponse, _ := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
+	
+		context.Send(spawnResponse.Pid, message)
+	
+		console.ReadLine()
+	}
 }

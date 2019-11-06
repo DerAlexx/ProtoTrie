@@ -1,3 +1,5 @@
+#Trie
+
 ## Ausführen mit Docker
 
 -   Images bauen
