@@ -5,7 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/AsynkronIT/protoactor-go/remote"
+	"github.com/ob-vss-ws19/blatt-3-pwn/messages"
 	"github.com/ob-vss-ws19/blatt-3-pwn/tree"
 )
 
@@ -74,33 +78,43 @@ func main() {
 	} else {
 		fmt.Println("Please make sure your given arguments fit the required pattern for more info enter .. -h")
 	}
+}
 
-	type ClientRemoteActor struct {
-		count int
+/*
+ClientRemoteActor will
+*/
+type ClientRemoteActor struct {
+	count int
+}
+
+/*
+Receive will
+*/
+func (state *ClientRemoteActor) Receive(context actor.Context) {
+	switch msg := context.Message().(type) {
+	case *messages.Response:
+		state.count++
+		fmt.Println(state.count)
+	}
+}
+
+func remotesend() {
+
+	remote.Start("localhost:8090")
+
+	context := actor.EmptyRootContext
+	props := actor.PropsFromProducer(func() actor.Actor { return &ClientRemoteActor{} })
+	pid := context.Spawn(props)
+	message := &messages.Request{
+		Id:      1,
+		Token:   "insertGetToken",
+		Message: "Befehl",
+		Sender:  pid,
 	}
 
-	func (state *ServerRemoteActor) Receive(context actor.Context) {
-		switch context.Message().(type) {
-		case *messages.Response:
-			state.count++
-			fmt.Println(state.count)
-		}
-	}
+	// this is to spawn remote actor we want to communicate with
+	spawnResponse, _ := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
 
-	func remotesend() {
+	context.Send(spawnResponse.Pid, message)
 
-		remote.Start("localhost:8090")
-	
-		context := actor.EmptyRootContext
-		props := actor.PropsFromProducer(func() actor.Actor { return &ClientRemoteActor{} })
-		pid, _ := context.Spawn(props)
-		message := &messages.Request{Id = "insertGetId", Token = "insertGetToken", Message: "Befehl", Sender: pid}
-	
-		// this is to spawn remote actor we want to communicate with
-		spawnResponse, _ := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
-	
-		context.Send(spawnResponse.Pid, message)
-	
-		console.ReadLine()
-	}
 }
