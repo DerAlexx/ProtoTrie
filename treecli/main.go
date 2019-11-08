@@ -94,7 +94,7 @@ func (state *ClientRemoteActor) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *messages.Response:
 		state.count++
-		fmt.Println(state.count)
+		fmt.Println(state.count, msg)
 	}
 }
 
@@ -105,13 +105,14 @@ func remotesend() {
 	context := actor.EmptyRootContext
 	props := actor.PropsFromProducer(func() actor.Actor { return &ClientRemoteActor{} })
 	pid := context.Spawn(props)
-	message := &messages.Request{
+	fmt.Println(pid)
+	message := &messages.Request{}
+	/*
 		Id:      1,
-		Token:   "insertGetToken",
-		Message: "Befehl",
-		Sender:  pid,
-	}
-
+			Token:   "insertGetToken",
+			Message: "Befehl",
+			Sender:  pid,
+	*/
 	// this is to spawn remote actor we want to communicate with
 	spawnResponse, _ := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
 

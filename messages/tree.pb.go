@@ -5,7 +5,6 @@ package messages
 
 import (
 	fmt "fmt"
-	actor "github.com/AsynkronIT/protoactor-go/actor"
 	proto "github.com/gogo/protobuf/proto"
 	io "io"
 	math "math"
@@ -26,10 +25,11 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Request struct {
-	Sender  *actor.PID `protobuf:"bytes,1,opt,name=Sender,proto3" json:"Sender,omitempty"`
-	Message string     `protobuf:"bytes,2,opt,name=Message,proto3" json:"Message,omitempty"`
-	Token   string     `protobuf:"bytes,3,opt,name=Token,proto3" json:"Token,omitempty"`
-	Id      int32      `protobuf:"varint,4,opt,name=Id,proto3" json:"Id,omitempty"`
+	Address string `protobuf:"bytes,1,opt,name=Address,proto3" json:"Address,omitempty"`
+	PIDId   string `protobuf:"bytes,2,opt,name=PIDId,proto3" json:"PIDId,omitempty"`
+	Message string `protobuf:"bytes,3,opt,name=Message,proto3" json:"Message,omitempty"`
+	Token   string `protobuf:"bytes,4,opt,name=Token,proto3" json:"Token,omitempty"`
+	Id      int32  `protobuf:"varint,6,opt,name=Id,proto3" json:"Id,omitempty"`
 }
 
 func (m *Request) Reset()      { *m = Request{} }
@@ -64,11 +64,18 @@ func (m *Request) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Request proto.InternalMessageInfo
 
-func (m *Request) GetSender() *actor.PID {
+func (m *Request) GetAddress() string {
 	if m != nil {
-		return m.Sender
+		return m.Address
 	}
-	return nil
+	return ""
+}
+
+func (m *Request) GetPIDId() string {
+	if m != nil {
+		return m.PIDId
+	}
+	return ""
 }
 
 func (m *Request) GetMessage() string {
@@ -143,24 +150,21 @@ func init() {
 func init() { proto.RegisterFile("tree.proto", fileDescriptor_cb3889276909882a) }
 
 var fileDescriptor_cb3889276909882a = []byte{
-	// 265 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x44, 0x8f, 0xbf, 0x4a, 0xfc, 0x40,
-	0x10, 0xc7, 0x77, 0xf2, 0xfb, 0xdd, 0x9f, 0xac, 0x60, 0xb1, 0x58, 0x04, 0x91, 0x21, 0xa4, 0x4a,
-	0x63, 0x02, 0x2a, 0xf6, 0x8a, 0x4d, 0x0a, 0x41, 0xf6, 0x0e, 0xfb, 0xdc, 0x65, 0x88, 0x72, 0x26,
-	0x7b, 0x66, 0x37, 0x85, 0x9d, 0x8f, 0xe0, 0x63, 0xf8, 0x28, 0x96, 0x29, 0xaf, 0x34, 0x9b, 0xc6,
-	0xf2, 0x1e, 0x41, 0xd8, 0x28, 0x76, 0xf3, 0xfd, 0xcc, 0x97, 0xf9, 0x30, 0x9c, 0x9b, 0x86, 0x28,
-	0xd9, 0x36, 0xca, 0x28, 0x31, 0xaf, 0x48, 0xeb, 0xbc, 0x24, 0x7d, 0x7c, 0x59, 0x3e, 0x9a, 0x87,
-	0x76, 0x95, 0xac, 0x55, 0x95, 0x5e, 0xe9, 0x97, 0x7a, 0xd3, 0xa8, 0x3a, 0x5b, 0xa6, 0xae, 0x96,
-	0xaf, 0x8d, 0x6a, 0x4e, 0x4b, 0x95, 0xba, 0x61, 0x64, 0x7a, 0xbc, 0x10, 0x55, 0x7c, 0x26, 0xe9,
-	0xb9, 0x25, 0x6d, 0x44, 0xc4, 0xa7, 0x0b, 0xaa, 0x0b, 0x6a, 0x02, 0x08, 0x21, 0x3e, 0x38, 0xe3,
-	0x89, 0xeb, 0x27, 0x77, 0xd9, 0x8d, 0xfc, 0xd9, 0x88, 0x80, 0xcf, 0x6e, 0x47, 0x65, 0xe0, 0x85,
-	0x10, 0xfb, 0xf2, 0x37, 0x8a, 0x23, 0x3e, 0x59, 0xaa, 0x0d, 0xd5, 0xc1, 0x3f, 0xc7, 0xc7, 0x20,
-	0x0e, 0xb9, 0x97, 0x15, 0xc1, 0xff, 0x10, 0xe2, 0x89, 0xf4, 0xb2, 0x22, 0x8a, 0xf9, 0x5c, 0x92,
-	0xde, 0xaa, 0x5a, 0x93, 0x38, 0xe1, 0xfe, 0x42, 0x55, 0x74, 0x9f, 0x3f, 0xb5, 0xe4, 0x94, 0xbe,
-	0xfc, 0x03, 0xd7, 0x17, 0x5d, 0x8f, 0x6c, 0xd7, 0x23, 0xdb, 0xf7, 0x08, 0xaf, 0x16, 0xe1, 0xdd,
-	0x22, 0x7c, 0x58, 0x84, 0xce, 0x22, 0x7c, 0x5a, 0x84, 0x2f, 0x8b, 0x6c, 0x6f, 0x11, 0xde, 0x06,
-	0x64, 0xdd, 0x80, 0x6c, 0x37, 0x20, 0x5b, 0x4d, 0xdd, 0x57, 0xe7, 0xdf, 0x01, 0x00, 0x00, 0xff,
-	0xff, 0x89, 0x34, 0x90, 0x2c, 0x25, 0x01, 0x00, 0x00,
+	// 222 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2a, 0x29, 0x4a, 0x4d,
+	0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0xc8, 0x4d, 0x2d, 0x2e, 0x4e, 0x4c, 0x4f, 0x2d,
+	0x56, 0xaa, 0xe4, 0x62, 0x0f, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x11, 0x92, 0xe0, 0x62, 0x77,
+	0x4c, 0x49, 0x29, 0x4a, 0x2d, 0x2e, 0x96, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x82, 0x71, 0x85,
+	0x44, 0xb8, 0x58, 0x03, 0x3c, 0x5d, 0x3c, 0x53, 0x24, 0x98, 0xc0, 0xe2, 0x10, 0x0e, 0x48, 0xbd,
+	0x2f, 0xc4, 0x18, 0x09, 0x66, 0x88, 0x7a, 0x28, 0x17, 0xa4, 0x3e, 0x24, 0x3f, 0x3b, 0x35, 0x4f,
+	0x82, 0x05, 0xa2, 0x1e, 0xcc, 0x11, 0xe2, 0xe3, 0x62, 0xf2, 0x4c, 0x91, 0x60, 0x53, 0x60, 0xd4,
+	0x60, 0x0d, 0x62, 0xf2, 0x4c, 0x51, 0xd2, 0xe0, 0xe2, 0x08, 0x4a, 0x2d, 0x2e, 0xc8, 0xcf, 0x2b,
+	0x4e, 0x15, 0x92, 0xe1, 0xe2, 0x0c, 0xce, 0xcf, 0x4d, 0x0d, 0x4b, 0xcc, 0x29, 0x4d, 0x85, 0xda,
+	0x8e, 0x10, 0x70, 0x32, 0xb9, 0xf0, 0x50, 0x8e, 0xe1, 0xc6, 0x43, 0x39, 0x86, 0x0f, 0x0f, 0xe5,
+	0x18, 0x1b, 0x1e, 0xc9, 0x31, 0xae, 0x78, 0x24, 0xc7, 0x78, 0xe2, 0x91, 0x1c, 0xe3, 0x85, 0x47,
+	0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0xbe, 0x78, 0x24, 0xc7, 0xf0, 0xe1, 0x91, 0x1c, 0xe3, 0x84,
+	0xc7, 0x72, 0x0c, 0x17, 0x1e, 0xcb, 0x31, 0xdc, 0x78, 0x2c, 0xc7, 0x90, 0xc4, 0x06, 0xf6, 0xab,
+	0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0xfb, 0x3d, 0x51, 0x03, 0xf9, 0x00, 0x00, 0x00,
 }
 
 func (this *Request) Equal(that interface{}) bool {
@@ -182,7 +186,10 @@ func (this *Request) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if !this.Sender.Equal(that1.Sender) {
+	if this.Address != that1.Address {
+		return false
+	}
+	if this.PIDId != that1.PIDId {
 		return false
 	}
 	if this.Message != that1.Message {
@@ -224,11 +231,10 @@ func (this *Request) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 8)
+	s := make([]string, 0, 9)
 	s = append(s, "&messages.Request{")
-	if this.Sender != nil {
-		s = append(s, "Sender: "+fmt.Sprintf("%#v", this.Sender)+",\n")
-	}
+	s = append(s, "Address: "+fmt.Sprintf("%#v", this.Address)+",\n")
+	s = append(s, "PIDId: "+fmt.Sprintf("%#v", this.PIDId)+",\n")
 	s = append(s, "Message: "+fmt.Sprintf("%#v", this.Message)+",\n")
 	s = append(s, "Token: "+fmt.Sprintf("%#v", this.Token)+",\n")
 	s = append(s, "Id: "+fmt.Sprintf("%#v", this.Id)+",\n")
@@ -276,31 +282,33 @@ func (m *Request) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	if m.Id != 0 {
 		i = encodeVarintTree(dAtA, i, uint64(m.Id))
 		i--
-		dAtA[i] = 0x20
+		dAtA[i] = 0x30
 	}
 	if len(m.Token) > 0 {
 		i -= len(m.Token)
 		copy(dAtA[i:], m.Token)
 		i = encodeVarintTree(dAtA, i, uint64(len(m.Token)))
 		i--
-		dAtA[i] = 0x1a
+		dAtA[i] = 0x22
 	}
 	if len(m.Message) > 0 {
 		i -= len(m.Message)
 		copy(dAtA[i:], m.Message)
 		i = encodeVarintTree(dAtA, i, uint64(len(m.Message)))
 		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.PIDId) > 0 {
+		i -= len(m.PIDId)
+		copy(dAtA[i:], m.PIDId)
+		i = encodeVarintTree(dAtA, i, uint64(len(m.PIDId)))
+		i--
 		dAtA[i] = 0x12
 	}
-	if m.Sender != nil {
-		{
-			size, err := m.Sender.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintTree(dAtA, i, uint64(size))
-		}
+	if len(m.Address) > 0 {
+		i -= len(m.Address)
+		copy(dAtA[i:], m.Address)
+		i = encodeVarintTree(dAtA, i, uint64(len(m.Address)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -354,8 +362,12 @@ func (m *Request) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.Sender != nil {
-		l = m.Sender.Size()
+	l = len(m.Address)
+	if l > 0 {
+		n += 1 + l + sovTree(uint64(l))
+	}
+	l = len(m.PIDId)
+	if l > 0 {
 		n += 1 + l + sovTree(uint64(l))
 	}
 	l = len(m.Message)
@@ -396,7 +408,8 @@ func (this *Request) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&Request{`,
-		`Sender:` + strings.Replace(fmt.Sprintf("%v", this.Sender), "PID", "actor.PID", 1) + `,`,
+		`Address:` + fmt.Sprintf("%v", this.Address) + `,`,
+		`PIDId:` + fmt.Sprintf("%v", this.PIDId) + `,`,
 		`Message:` + fmt.Sprintf("%v", this.Message) + `,`,
 		`Token:` + fmt.Sprintf("%v", this.Token) + `,`,
 		`Id:` + fmt.Sprintf("%v", this.Id) + `,`,
@@ -453,9 +466,9 @@ func (m *Request) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Sender", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
 			}
-			var msglen int
+			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTree
@@ -465,29 +478,57 @@ func (m *Request) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				msglen |= int(b&0x7F) << shift
+				stringLen |= uint64(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			if msglen < 0 {
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
 				return ErrInvalidLengthTree
 			}
-			postIndex := iNdEx + msglen
+			postIndex := iNdEx + intStringLen
 			if postIndex < 0 {
 				return ErrInvalidLengthTree
 			}
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			if m.Sender == nil {
-				m.Sender = &actor.PID{}
-			}
-			if err := m.Sender.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
+			m.Address = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PIDId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTree
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTree
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTree
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PIDId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Message", wireType)
 			}
@@ -519,7 +560,7 @@ func (m *Request) Unmarshal(dAtA []byte) error {
 			}
 			m.Message = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 3:
+		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
 			}
@@ -551,7 +592,7 @@ func (m *Request) Unmarshal(dAtA []byte) error {
 			}
 			m.Token = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
+		case 6:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
 			}
