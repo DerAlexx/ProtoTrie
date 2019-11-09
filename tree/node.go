@@ -40,7 +40,7 @@ Nodeactor is
 */
 type Nodeactor struct {
 	Behavior     actor.Behavior
-	Storable     int64
+	Storable     int
 	LeftElement  interface{}
 	RightElement interface{}
 }
@@ -50,6 +50,7 @@ CreateBasicNode will return a Basic node containing the parentnode and a left, r
 */
 func CreateBasicNode() *Nodeactor {
 	return &Nodeactor{
+		Storable:     -1,
 		LeftElement:  NewLeaf(),
 		RightElement: NewLeaf(),
 	}
@@ -100,6 +101,40 @@ func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 	case *Insertmessage:
 		fmt.Println(msg)
 	}
+}
+
+/*
+HasValueToDecide will check whether a given node has a value set to decide whether the value belongs to the
+left side or not. In case it does it will return true otherwise false.
+*/
+func (state *Nodeactor) HasValueToDecide() (bool, int) {
+	if state.Storable != -1 {
+		return true, state.Storable
+	}
+	return false, -1
+}
+
+/*
+SetStoreable will set the value so it can be use to decide the target leaf
+*/
+func (state *Nodeactor) SetStoreable(value int) {
+	state.Storable = value
+}
+
+/*
+IsLeft will check whether a given Key belongs to the left leaf incase the it does it will return true
+otherwise it will return false
+*/
+func (state *Nodeactor) IsLeft(value int) bool {
+	has, is := state.HasValueToDecide()
+	if !has {
+		state.SetStoreable(value)
+		return true
+	}
+	if is <= value {
+		return false
+	}
+	return true
 }
 
 /*
