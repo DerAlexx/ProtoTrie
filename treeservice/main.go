@@ -1,6 +1,8 @@
 package main
 
 import (
+	"sync"
+
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/remote"
 	"github.com/ob-vss-ws19/blatt-3-pwn/messages"
@@ -54,7 +56,10 @@ func NewServerRemoteActor() actor.Actor {
 }
 
 func main() {
+	var wg sync.WaitGroup
 
+	wg.Add(1)
+	defer wg.Wait()
 	remote.Start("localhost:8091")
 
 	remote.Register("hello", actor.PropsFromProducer(NewServerRemoteActor))

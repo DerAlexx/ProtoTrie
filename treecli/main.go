@@ -116,6 +116,7 @@ func main() {
 		fmt.Println("Trie will not be deleted")
 	} else if *createTree != -1 {
 		_, _ = sendCreateTrie(*createTree)
+		fmt.Println("hahahahah")
 	} else {
 		fmt.Println("Please make sure your given arguments fit the required pattern for more info enter .. -h")
 	}
@@ -152,6 +153,7 @@ func remotesend(mess interface{}) (bool, error) {
 
 	spawnResponse, err := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
 	if err != nil {
+		time.Sleep(5 * time.Second)
 		context.RequestWithCustomSender(spawnResponse.Pid, mess, pid)
 		return true, nil
 	}
