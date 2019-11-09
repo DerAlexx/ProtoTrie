@@ -95,17 +95,17 @@ func main() {
 
 	flag.Parse()
 	if *insertBool && *key != -1 && *value != "" {
-		_, _ := sendInsert(*ID, *token, tree.Pair{
+		_, _ = sendInsert(*ID, *token, tree.Pair{
 			Key:   *key,
 			Value: *value,
 		})
 	} else if *changeBool && *key != -1 && *value != "" {
-		_, _ := sendChange(*ID, *token, tree.Pair{
+		_, _ = sendChange(*ID, *token, tree.Pair{
 			Key:   *key,
 			Value: *value,
 		})
 	} else if *delete != -1 {
-		_, _ := sendDelete(*ID, *token, *key)
+		_, _ = sendDelete(*ID, *token, *key)
 	} else if *deleteTrie {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Are sure you wanna delete the trie (y/n)")
@@ -115,7 +115,7 @@ func main() {
 		}
 		fmt.Println("Trie will not be deleted")
 	} else if *createTree != -1 {
-		_, _ := sendCreateTrie(*createTree)
+		_, _ = sendCreateTrie(*createTree)
 	} else {
 		fmt.Println("Please make sure your given arguments fit the required pattern for more info enter .. -h")
 	}
