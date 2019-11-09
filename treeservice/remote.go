@@ -1,31 +1,51 @@
 package treeservice
 
 import (
-	"fmt"
-	"reflect"
-
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/remote"
+	"github.com/ob-vss-ws19/blatt-3-pwn/messages"
 )
 
 type ServerRemoteActor struct{}
 
 func (*ServerRemoteActor) Receive(context actor.Context) {
-    switch msg := context.Message().(type) {
-    case *messages.Request:
-        context.Send(msg.Sender, &messages.Response{
-            SomeValue: "result",
-        })
-    }
+	switch msg := context.Message().(type) {
+	case *messages.DeleteRequest:
+		//delete(*messages.DeleteRequest.Token, *messages.DeleteRequest.Id, *messages.DeleteRequest.Key)
+		context.Send(msg.Sender, &messages.Response{
+			SomeValue: "result",
+		})
+	case *messages.ChangeRequest:
+		//change(*messages.DeleteRequest.Token, *messages.DeleteRequest.Id, *messages.DeleteRequest.P)
+		context.Send(msg.Sender, &messages.Response{
+			SomeValue: "result",
+		})
+	case *messages.InsertRequest:
+		//insert(*messages.DeleteRequest.Token, *messages.DeleteRequest.Id, *messages.DeleteRequest.P)
+		context.Send(msg.Sender, &messages.Response{
+			SomeValue: "result",
+		})
+	case *messages.CreateTreeRequest:
+		//createTree(*messages.DeleteRequest.Size)
+		context.Send(msg.Sender, &messages.Response{
+			SomeValue: "result",
+		})
+	case *messages.DeleteTreeRequest:
+		deleteTrie(*messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
+		context.Send(msg.Sender, &messages.Response{
+			SomeValue: "result",
+		})
+	}
 }
 
 func main() {
-    remote.Start("localhost:8091")
+	remote.Start("localhost:8091")
 
-    // register a name for our local actor so that it can be spawned remotely
-    remote.Register("hello", actor.PropsFromProducer(func() actor.Actor { return &ServerRemoteActor{} }))
-	console.ReadLine()
-	//Methode decide(message)
+	// register a name for our local actor so that it can be spawned remotely
+	remote.Register("hello", actor.PropsFromProducer(NewServerRemoteActor))
+
 }
 
-//Methode decide(message) switch case, ruft methode auf und gibt je nach message inhalt response zurueck
+func NewServerRemoteActor() actor.Actor {
+	return &ServerRemoteActor{}
+}

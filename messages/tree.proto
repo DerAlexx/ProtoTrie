@@ -1,12 +1,34 @@
 syntax = "proto3";
 
+import "github.com/ob-vss-ws19/blatt-3-pwn/tree"
+
 package messages;
 
-
-message Request {
+message DeleteRequest {
     string Token = 1;
     int32 Id = 2;
-    string Message = 3;
+    int32 Key = 3;
+}
+
+message ChangeRequest {
+    string Token = 1;
+    int32 Id = 2;
+    tree.Pair P = 3;
+}
+
+message InsertRequest {
+    string Token = 1;
+    int32 Id = 2;
+    tree.Pair P = 3;
+}
+
+message CreateTreeRequest {  
+    int32 Size = 1;
+}
+
+message DeleteTreeRequest {  
+    string Token = 1;
+    int32 Id = 2;
 }
 
 message Response {
