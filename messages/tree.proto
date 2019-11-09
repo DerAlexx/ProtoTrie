@@ -1,16 +1,12 @@
 syntax = "proto3";
 
-//import  "github.com/AsynkronIT/protoactor-go/actor/protos.proto";
-
 package messages;
 
 
 message Request {
-    string Address = 1;
-    string PIDId = 2;
+    string Token = 1;
+    int32 Id = 2;
     string Message = 3;
-    string Token = 4;
-    int32 Id = 6;
 }
 
 message Response {

@@ -106,16 +106,13 @@ func remotesend() {
 	props := actor.PropsFromProducer(func() actor.Actor { return &ClientRemoteActor{} })
 	pid := context.Spawn(props)
 	fmt.Println(pid)
-	message := &messages.Request{}
-	/*
+	message := &messages.Request{
 		Id:      1,
-			Token:   "insertGetToken",
-			Message: "Befehl",
-			Sender:  pid,
-	*/
-	// this is to spawn remote actor we want to communicate with
+		Token:   "insertGetToken",
+		Message: "Befehl",
+	}
 	spawnResponse, _ := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
 
-	context.Send(spawnResponse.Pid, message)
+	context.RequestWithCustomSender(spawnResponse.Pid, message, pid)
 
 }

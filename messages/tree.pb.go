@@ -25,11 +25,9 @@ var _ = math.Inf
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type Request struct {
-	Address string `protobuf:"bytes,1,opt,name=Address,proto3" json:"Address,omitempty"`
-	PIDId   string `protobuf:"bytes,2,opt,name=PIDId,proto3" json:"PIDId,omitempty"`
+	Token   string `protobuf:"bytes,1,opt,name=Token,proto3" json:"Token,omitempty"`
+	Id      int32  `protobuf:"varint,2,opt,name=Id,proto3" json:"Id,omitempty"`
 	Message string `protobuf:"bytes,3,opt,name=Message,proto3" json:"Message,omitempty"`
-	Token   string `protobuf:"bytes,4,opt,name=Token,proto3" json:"Token,omitempty"`
-	Id      int32  `protobuf:"varint,6,opt,name=Id,proto3" json:"Id,omitempty"`
 }
 
 func (m *Request) Reset()      { *m = Request{} }
@@ -64,27 +62,6 @@ func (m *Request) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Request proto.InternalMessageInfo
 
-func (m *Request) GetAddress() string {
-	if m != nil {
-		return m.Address
-	}
-	return ""
-}
-
-func (m *Request) GetPIDId() string {
-	if m != nil {
-		return m.PIDId
-	}
-	return ""
-}
-
-func (m *Request) GetMessage() string {
-	if m != nil {
-		return m.Message
-	}
-	return ""
-}
-
 func (m *Request) GetToken() string {
 	if m != nil {
 		return m.Token
@@ -97,6 +74,13 @@ func (m *Request) GetId() int32 {
 		return m.Id
 	}
 	return 0
+}
+
+func (m *Request) GetMessage() string {
+	if m != nil {
+		return m.Message
+	}
+	return ""
 }
 
 type Response struct {
@@ -150,21 +134,20 @@ func init() {
 func init() { proto.RegisterFile("tree.proto", fileDescriptor_cb3889276909882a) }
 
 var fileDescriptor_cb3889276909882a = []byte{
-	// 222 bytes of a gzipped FileDescriptorProto
+	// 195 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2a, 0x29, 0x4a, 0x4d,
 	0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0xc8, 0x4d, 0x2d, 0x2e, 0x4e, 0x4c, 0x4f, 0x2d,
-	0x56, 0xaa, 0xe4, 0x62, 0x0f, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x11, 0x92, 0xe0, 0x62, 0x77,
-	0x4c, 0x49, 0x29, 0x4a, 0x2d, 0x2e, 0x96, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x82, 0x71, 0x85,
-	0x44, 0xb8, 0x58, 0x03, 0x3c, 0x5d, 0x3c, 0x53, 0x24, 0x98, 0xc0, 0xe2, 0x10, 0x0e, 0x48, 0xbd,
-	0x2f, 0xc4, 0x18, 0x09, 0x66, 0x88, 0x7a, 0x28, 0x17, 0xa4, 0x3e, 0x24, 0x3f, 0x3b, 0x35, 0x4f,
-	0x82, 0x05, 0xa2, 0x1e, 0xcc, 0x11, 0xe2, 0xe3, 0x62, 0xf2, 0x4c, 0x91, 0x60, 0x53, 0x60, 0xd4,
-	0x60, 0x0d, 0x62, 0xf2, 0x4c, 0x51, 0xd2, 0xe0, 0xe2, 0x08, 0x4a, 0x2d, 0x2e, 0xc8, 0xcf, 0x2b,
-	0x4e, 0x15, 0x92, 0xe1, 0xe2, 0x0c, 0xce, 0xcf, 0x4d, 0x0d, 0x4b, 0xcc, 0x29, 0x4d, 0x85, 0xda,
-	0x8e, 0x10, 0x70, 0x32, 0xb9, 0xf0, 0x50, 0x8e, 0xe1, 0xc6, 0x43, 0x39, 0x86, 0x0f, 0x0f, 0xe5,
-	0x18, 0x1b, 0x1e, 0xc9, 0x31, 0xae, 0x78, 0x24, 0xc7, 0x78, 0xe2, 0x91, 0x1c, 0xe3, 0x85, 0x47,
-	0x72, 0x8c, 0x0f, 0x1e, 0xc9, 0x31, 0xbe, 0x78, 0x24, 0xc7, 0xf0, 0xe1, 0x91, 0x1c, 0xe3, 0x84,
-	0xc7, 0x72, 0x0c, 0x17, 0x1e, 0xcb, 0x31, 0xdc, 0x78, 0x2c, 0xc7, 0x90, 0xc4, 0x06, 0xf6, 0xab,
-	0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0xfb, 0x3d, 0x51, 0x03, 0xf9, 0x00, 0x00, 0x00,
+	0x56, 0xf2, 0xe4, 0x62, 0x0f, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x11, 0x12, 0xe1, 0x62, 0x0d,
+	0xc9, 0xcf, 0x4e, 0xcd, 0x93, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x82, 0x70, 0x84, 0xf8, 0xb8,
+	0x98, 0x3c, 0x53, 0x24, 0x98, 0x14, 0x18, 0x35, 0x58, 0x83, 0x98, 0x3c, 0x53, 0x84, 0x24, 0xb8,
+	0xd8, 0x7d, 0x21, 0x9a, 0x25, 0x98, 0xc1, 0xea, 0x60, 0x5c, 0x25, 0x0d, 0x2e, 0x8e, 0xa0, 0xd4,
+	0xe2, 0x82, 0xfc, 0xbc, 0xe2, 0x54, 0x21, 0x19, 0x2e, 0xce, 0xe0, 0xfc, 0xdc, 0xd4, 0xb0, 0xc4,
+	0x9c, 0xd2, 0x54, 0xa8, 0x79, 0x08, 0x01, 0x27, 0x93, 0x0b, 0x0f, 0xe5, 0x18, 0x6e, 0x3c, 0x94,
+	0x63, 0xf8, 0xf0, 0x50, 0x8e, 0xb1, 0xe1, 0x91, 0x1c, 0xe3, 0x8a, 0x47, 0x72, 0x8c, 0x27, 0x1e,
+	0xc9, 0x31, 0x5e, 0x78, 0x24, 0xc7, 0xf8, 0xe0, 0x91, 0x1c, 0xe3, 0x8b, 0x47, 0x72, 0x0c, 0x1f,
+	0x1e, 0xc9, 0x31, 0x4e, 0x78, 0x2c, 0xc7, 0x70, 0xe1, 0xb1, 0x1c, 0xc3, 0x8d, 0xc7, 0x72, 0x0c,
+	0x49, 0x6c, 0x60, 0xb7, 0x1b, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0x4f, 0x60, 0xef, 0xc6, 0xc9,
+	0x00, 0x00, 0x00,
 }
 
 func (this *Request) Equal(that interface{}) bool {
@@ -186,19 +169,13 @@ func (this *Request) Equal(that interface{}) bool {
 	} else if this == nil {
 		return false
 	}
-	if this.Address != that1.Address {
-		return false
-	}
-	if this.PIDId != that1.PIDId {
-		return false
-	}
-	if this.Message != that1.Message {
-		return false
-	}
 	if this.Token != that1.Token {
 		return false
 	}
 	if this.Id != that1.Id {
+		return false
+	}
+	if this.Message != that1.Message {
 		return false
 	}
 	return true
@@ -231,13 +208,11 @@ func (this *Request) GoString() string {
 	if this == nil {
 		return "nil"
 	}
-	s := make([]string, 0, 9)
+	s := make([]string, 0, 7)
 	s = append(s, "&messages.Request{")
-	s = append(s, "Address: "+fmt.Sprintf("%#v", this.Address)+",\n")
-	s = append(s, "PIDId: "+fmt.Sprintf("%#v", this.PIDId)+",\n")
-	s = append(s, "Message: "+fmt.Sprintf("%#v", this.Message)+",\n")
 	s = append(s, "Token: "+fmt.Sprintf("%#v", this.Token)+",\n")
 	s = append(s, "Id: "+fmt.Sprintf("%#v", this.Id)+",\n")
+	s = append(s, "Message: "+fmt.Sprintf("%#v", this.Message)+",\n")
 	s = append(s, "}")
 	return strings.Join(s, "")
 }
@@ -279,18 +254,6 @@ func (m *Request) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.Id != 0 {
-		i = encodeVarintTree(dAtA, i, uint64(m.Id))
-		i--
-		dAtA[i] = 0x30
-	}
-	if len(m.Token) > 0 {
-		i -= len(m.Token)
-		copy(dAtA[i:], m.Token)
-		i = encodeVarintTree(dAtA, i, uint64(len(m.Token)))
-		i--
-		dAtA[i] = 0x22
-	}
 	if len(m.Message) > 0 {
 		i -= len(m.Message)
 		copy(dAtA[i:], m.Message)
@@ -298,17 +261,15 @@ func (m *Request) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x1a
 	}
-	if len(m.PIDId) > 0 {
-		i -= len(m.PIDId)
-		copy(dAtA[i:], m.PIDId)
-		i = encodeVarintTree(dAtA, i, uint64(len(m.PIDId)))
+	if m.Id != 0 {
+		i = encodeVarintTree(dAtA, i, uint64(m.Id))
 		i--
-		dAtA[i] = 0x12
+		dAtA[i] = 0x10
 	}
-	if len(m.Address) > 0 {
-		i -= len(m.Address)
-		copy(dAtA[i:], m.Address)
-		i = encodeVarintTree(dAtA, i, uint64(len(m.Address)))
+	if len(m.Token) > 0 {
+		i -= len(m.Token)
+		copy(dAtA[i:], m.Token)
+		i = encodeVarintTree(dAtA, i, uint64(len(m.Token)))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -362,24 +323,16 @@ func (m *Request) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.Address)
-	if l > 0 {
-		n += 1 + l + sovTree(uint64(l))
-	}
-	l = len(m.PIDId)
-	if l > 0 {
-		n += 1 + l + sovTree(uint64(l))
-	}
-	l = len(m.Message)
-	if l > 0 {
-		n += 1 + l + sovTree(uint64(l))
-	}
 	l = len(m.Token)
 	if l > 0 {
 		n += 1 + l + sovTree(uint64(l))
 	}
 	if m.Id != 0 {
 		n += 1 + sovTree(uint64(m.Id))
+	}
+	l = len(m.Message)
+	if l > 0 {
+		n += 1 + l + sovTree(uint64(l))
 	}
 	return n
 }
@@ -408,11 +361,9 @@ func (this *Request) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&Request{`,
-		`Address:` + fmt.Sprintf("%v", this.Address) + `,`,
-		`PIDId:` + fmt.Sprintf("%v", this.PIDId) + `,`,
-		`Message:` + fmt.Sprintf("%v", this.Message) + `,`,
 		`Token:` + fmt.Sprintf("%v", this.Token) + `,`,
 		`Id:` + fmt.Sprintf("%v", this.Id) + `,`,
+		`Message:` + fmt.Sprintf("%v", this.Message) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -466,7 +417,7 @@ func (m *Request) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Address", wireType)
+				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
 			}
 			var stringLen uint64
 			for shift := uint(0); ; shift += 7 {
@@ -494,13 +445,13 @@ func (m *Request) Unmarshal(dAtA []byte) error {
 			if postIndex > l {
 				return io.ErrUnexpectedEOF
 			}
-			m.Address = string(dAtA[iNdEx:postIndex])
+			m.Token = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field PIDId", wireType)
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
 			}
-			var stringLen uint64
+			m.Id = 0
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowTree
@@ -510,24 +461,11 @@ func (m *Request) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
+				m.Id |= int32(b&0x7F) << shift
 				if b < 0x80 {
 					break
 				}
 			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTree
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTree
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.PIDId = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Message", wireType)
@@ -560,57 +498,6 @@ func (m *Request) Unmarshal(dAtA []byte) error {
 			}
 			m.Message = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Token", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTree
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthTree
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthTree
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Token = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 6:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
-			}
-			m.Id = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowTree
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Id |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTree(dAtA[iNdEx:])
