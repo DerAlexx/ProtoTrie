@@ -1,6 +1,7 @@
 package tree
 
 import (
+	"errors"
 	"math/rand"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
@@ -65,6 +66,39 @@ addInToRootsMap will add a trie into the map of roots with its id as a parameter
 */
 func addInToRootsMap(id ID, trie TrieContainer) {
 	RootNodes[id] = trie
+}
+
+/*
+iterator will iterate over the tree and will return the node with the the correct leaf
+*/
+func (n *Nodeactor) iteraTor(key int) *Nodeactor {
+	switch t := n.LeftElement.(type) {
+	case *Leaf:
+		return n
+	case *Nodeactor:
+		if n.getConstrain() >= key { // Nach Links gehen
+			return t.iteraTor(key)
+		}
+		switch t := n.RightElement.(type) { //
+		case *Nodeactor:
+			return t.iteraTor(key)
+		}
+	}
+	return n
+}
+
+/*
+InsertInLeaf will insert a value into a given trie incase the
+*/
+func (n *Nodeactor) InsertInLeaf(pair Pair, id ID, token Token) (bool, error) {
+	if MatchIDandToken(id, token) {
+		targetMasterNode := n.iteraTor(pair.Key)
+		if targetMasterNode.IsLeft(pair.Key) {
+			targetMasterNode.LeftElement.(*Leaf).Insert(pair.Key, pair.Value)
+		}
+		targetMasterNode.RightElement.(*Leaf).Insert(pair.Key, pair.Value)
+	}
+	return false, errors.New("The given ID and Token doesnt match up")
 }
 
 /*
