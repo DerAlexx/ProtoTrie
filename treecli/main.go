@@ -137,6 +137,8 @@ func (state *ClientRemoteActor) Receive(context actor.Context) {
 		state.count++
 		fmt.Println(state.count, msg)
 	}
+default:
+	fmt.Println("Test")
 }
 
 func remotesend(mess interface{}) (bool, error) {
