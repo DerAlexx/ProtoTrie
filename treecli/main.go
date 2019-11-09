@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -15,25 +16,26 @@ import (
 
 func sendDelete(id int, token string, key int) (bool, error) {
 	message := &messages.DeleteRequest{
-		Token:   token,
-		Id:      id,
-		Key: key,
+		Token: token,
+		Id:    int32(id),
+		Key:   int32(key),
 	}
 	se, er := remotesend(message)
-	if (er != nil){
+	if er != nil && se {
 		return true, nil
 	}
-	return false, fmt.Errorf("Cannot Delete %d", Key)
+	return false, fmt.Errorf("Cannot Delete %d", key)
 }
 
 func sendChange(id int, token string, pair tree.Pair) (bool, error) {
 	message := &messages.ChangeRequest{
-		Token:   token,
-		Id:      id,
-		P pair,
+		Token: token,
+		Id:    int32(id),
+		Key:   int32(pair.Key),
+		Value: pair.Value,
 	}
 	se, er := remotesend(message)
-	if (er != nil){
+	if er != nil && se {
 		return true, nil
 	}
 	return false, fmt.Errorf("Cannot Change %d %s", pair.Key, pair.Value)
@@ -41,12 +43,13 @@ func sendChange(id int, token string, pair tree.Pair) (bool, error) {
 
 func sendInsert(id int, token string, pair tree.Pair) (bool, error) {
 	message := &messages.InsertRequest{
-		Token:   token,
-		Id:      id,
-		P pair,
+		Token: token,
+		Id:    int32(id),
+		Key:   int32(pair.Key),
+		Value: pair.Value,
 	}
 	se, er := remotesend(message)
-	if (er != nil){
+	if er != nil && se {
 		return true, nil
 	}
 	return false, fmt.Errorf("Cannot Insert %d %s", pair.Key, pair.Value)
@@ -54,10 +57,10 @@ func sendInsert(id int, token string, pair tree.Pair) (bool, error) {
 
 func sendCreateTrie(size int) (bool, error) {
 	message := &messages.CreateTreeRequest{
-		Size: size,
+		Size_: int32(size),
 	}
 	se, er := remotesend(message)
-	if (er != nil){
+	if er != nil && se {
 		return true, nil
 	}
 	return false, fmt.Errorf("Cannot Create Tree")
@@ -65,11 +68,11 @@ func sendCreateTrie(size int) (bool, error) {
 
 func sendDeleteTrie(id int, token string) (bool, error) {
 	message := &messages.DeleteTreeRequest{
-		Token:   token,
-		Id:      id,
+		Token: token,
+		Id:    int32(id),
 	}
 	se, er := remotesend(message)
-	if (er != nil){
+	if er != nil && se {
 		return true, nil
 	}
 	return false, fmt.Errorf("Cannot Change %d", id)
@@ -136,7 +139,7 @@ func (state *ClientRemoteActor) Receive(context actor.Context) {
 	}
 }
 
-func remotesend(mess interface{})(bool, error) {
+func remotesend(mess interface{}) (bool, error) {
 
 	remote.Start("localhost:8090")
 
@@ -144,13 +147,13 @@ func remotesend(mess interface{})(bool, error) {
 	props := actor.PropsFromProducer(func() actor.Actor { return &ClientRemoteActor{} })
 	pid := context.Spawn(props)
 	fmt.Println(pid)
-	
+
 	spawnResponse, err := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
-	if (err != nil){
+	if err != nil {
 		context.RequestWithCustomSender(spawnResponse.Pid, mess, pid)
 		return true, nil
 	}
 
-	return false, errors.New(err)
+	return false, errors.New("Cannot send to remote Controller")
 
 }

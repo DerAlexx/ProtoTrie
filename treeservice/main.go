@@ -33,7 +33,8 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 			SomeValue: "result",
 		})
 	case *messages.CreateTreeRequest:
-		tree.AddNewTrie(&context, int(*(messages.CreateTreeRequest).Size))
+		tree.AddNewTrie(int(msg.GetSize_()))
+		// int(*(*(messages.CreateTreeRequest).Size))
 		context.Respond(&messages.Response{
 			SomeValue: "result",
 		})
