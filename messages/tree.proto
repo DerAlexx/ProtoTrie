@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "github.com/ob-vss-ws19/blatt-3-pwn/tree"
-
 package messages;
 
 message DeleteRequest {
@@ -13,20 +11,22 @@ message DeleteRequest {
 message ChangeRequest {
     string Token = 1;
     int32 Id = 2;
-    tree.Pair P = 3;
+    int32 Key = 3;
+    string Value = 4;
 }
 
 message InsertRequest {
     string Token = 1;
     int32 Id = 2;
-    tree.Pair P = 3;
+    int32 Key = 3;
+    string Value = 4;
 }
 
-message CreateTreeRequest {  
+message CreateTreeRequest {
     int32 Size = 1;
 }
 
-message DeleteTreeRequest {  
+message DeleteTreeRequest {
     string Token = 1;
     int32 Id = 2;
 }

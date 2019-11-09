@@ -1,3 +1,12 @@
+package tree
+
+import (
+	"math/rand"
+
+	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/hashicorp/terraform/helper/hashcode"
+)
+
 /*
 ID is the ID of a new created Trie
 */
@@ -15,6 +24,7 @@ type TrieContainer struct {
 	Root  *actor.Props
 	Token Token
 	Pid   *actor.PID
+	Size  int
 }
 
 /*
@@ -43,7 +53,7 @@ func getRandomID() int {
 }
 
 /*
-getPID will return the PID of the rootnode of a given Trie-ID
+GetPID will return the PID of the rootnode of a given Trie-ID
 */
 func GetPID(id ID) *actor.PID {
 	return RootNodes[id].Pid
@@ -59,17 +69,18 @@ func addInToRootsMap(id ID, trie TrieContainer) {
 /*
 AddNewTrie will add a rootNode into the map and return the ID and the token for this trie
 */
-func AddNewTrie(context *actor.RootContext) (ID, Token, actor.PID) {
+func AddNewTrie(context *actor.RootContext, size int) (ID, Token, actor.PID) {
 	id := ID(getRandomID())
 	token := Token(hashcode.String(string(id)))
 	props := actor.PropsFromProducer(func() actor.Actor {
-		return tree.CreateBasicNode()
+		return CreateBasicNode()
 	})
 	pid := context.Spawn(props)
 	addInToRootsMap(id, TrieContainer{
 		Root:  props,
 		Token: token,
 		Pid:   pid,
+		Size:  size,
 	})
 	return id, token, *pid
 }
@@ -83,10 +94,10 @@ func MatchIDandToken(id ID, gtoken Token) bool {
 }
 
 /*
-deleteTrie will delete a Trie
+DeleteTrie will delete a Trie
 */
 func DeleteTrie(id ID, token Token) {
-	if matchIDandToken(id, token) {
+	if MatchIDandToken(id, token) {
 		delete(RootNodes, id)
 	}
 }
