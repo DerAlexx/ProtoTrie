@@ -14,27 +14,65 @@ import (
 )
 
 func sendDelete(id int, token string, key int) (bool, error) {
-
-	return false, nil
+	message := &messages.DeleteRequest{
+		Token:   token,
+		Id:      id,
+		Key: key,
+	}
+	se, er := remotesend(message)
+	if (er != nil){
+		return true, nil
+	}
+	return false, fmt.Errorf("Cannot Delete %d", Key)
 }
 
 func sendChange(id int, token string, pair tree.Pair) (bool, error) {
-
-	return false, nil
+	message := &messages.ChangeRequest{
+		Token:   token,
+		Id:      id,
+		P pair,
+	}
+	se, er := remotesend(message)
+	if (er != nil){
+		return true, nil
+	}
+	return false, fmt.Errorf("Cannot Change %d %s", pair.Key, pair.Value)
 }
 
 func sendInsert(id int, token string, pair tree.Pair) (bool, error) {
-
-	return false, nil
+	message := &messages.InsertRequest{
+		Token:   token,
+		Id:      id,
+		P pair,
+	}
+	se, er := remotesend(message)
+	if (er != nil){
+		return true, nil
+	}
+	return false, fmt.Errorf("Cannot Insert %d %s", pair.Key, pair.Value)
 }
-func sendCreateTrie(size int) (bool, error) {
 
-	return false, nil
+func sendCreateTrie(size int) (bool, error) {
+	message := &messages.CreateTreeRequest{
+		Size: size,
+	}
+	se, er := remotesend(message)
+	if (er != nil){
+		return true, nil
+	}
+	return false, fmt.Errorf("Cannot Create Tree")
 }
 
 func sendDeleteTrie(id int, token string) (bool, error) {
-
-	return false, nil
+	message := &messages.DeleteTreeRequest{
+		Token:   token,
+		Id:      id,
+	}
+	se, er := remotesend(message)
+	if (er != nil){
+		return true, nil
+	}
+	return false, fmt.Errorf("Cannot Change %d", id)
 }
 
 func main() {
@@ -98,7 +136,7 @@ func (state *ClientRemoteActor) Receive(context actor.Context) {
 	}
 }
 
-func remotesend() {
+func remotesend(mess interface{})(bool, error) {
 
 	remote.Start("localhost:8090")
 
@@ -106,13 +144,13 @@ func remotesend() {
 	props := actor.PropsFromProducer(func() actor.Actor { return &ClientRemoteActor{} })
 	pid := context.Spawn(props)
 	fmt.Println(pid)
-	message := &messages.Request{
-		Id:      1,
-		Token:   "insertGetToken",
-		Message: "Befehl",
+	
+	spawnResponse, err := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
+	if (err != nil){
+		context.RequestWithCustomSender(spawnResponse.Pid, mess, pid)
+		return true, nil
 	}
-	spawnResponse, _ := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
 
-	context.RequestWithCustomSender(spawnResponse.Pid, message, pid)
+	return false, errors.New(err)
 
 }
