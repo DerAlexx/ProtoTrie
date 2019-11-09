@@ -21,10 +21,11 @@ type Token string
 TrieContainer is a container for a Trie containing a Rootnode a Token and the PID of the Root
 */
 type TrieContainer struct {
-	Root  *actor.Props
-	Token Token
-	Pid   *actor.PID
-	Size  int
+	Root    *actor.Props
+	Token   Token
+	Pid     *actor.PID
+	Size    int
+	Context *actor.RootContext
 }
 
 /*
@@ -69,7 +70,8 @@ func addInToRootsMap(id ID, trie TrieContainer) {
 /*
 AddNewTrie will add a rootNode into the map and return the ID and the token for this trie
 */
-func AddNewTrie(context *actor.RootContext, size int) (ID, Token, actor.PID) {
+func AddNewTrie(size int) (ID, Token, actor.PID) {
+	context := actor.EmptyRootContext
 	id := ID(getRandomID())
 	token := Token(hashcode.String(string(id)))
 	props := actor.PropsFromProducer(func() actor.Actor {
@@ -77,10 +79,11 @@ func AddNewTrie(context *actor.RootContext, size int) (ID, Token, actor.PID) {
 	})
 	pid := context.Spawn(props)
 	addInToRootsMap(id, TrieContainer{
-		Root:  props,
-		Token: token,
-		Pid:   pid,
-		Size:  size,
+		Root:    props,
+		Token:   token,
+		Pid:     pid,
+		Size:    size,
+		Context: context,
 	})
 	return id, token, *pid
 }

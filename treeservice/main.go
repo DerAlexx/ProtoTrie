@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/remote"
 	"github.com/ob-vss-ws19/blatt-3-pwn/messages"
@@ -60,6 +58,4 @@ func main() {
 
 	remote.Register("hello", actor.PropsFromProducer(NewServerRemoteActor))
 
-	context := actor.EmptyRootContext
-	fmt.Println(context)
 }
