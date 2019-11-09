@@ -24,7 +24,7 @@ pipeline {
                 docker { image 'obraun/vss-protoactor-jenkins' }
             }
             steps {
-                sh 'golangci-lint run --disable-all' //--deadline 20m --enable-all
+                sh 'golangci-lint run --disable-all -E errcheck'  //--deadline 20m --enable-all
             }
         }
         stage('Build Docker Image') {
