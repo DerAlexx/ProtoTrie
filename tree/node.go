@@ -84,11 +84,11 @@ So it will have to leafs as childs and store information in this leafs.
 func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *Insertmessage:
-		state.Insert(msg.Element)
+		_, _ := state.Insert(msg.Element)
 	case *DeleteMessage:
-		state.Delete(msg.Key)
+		_, _ := state.Delete(msg.Key)
 	case *ChangeValueMessage:
-		state.ChangeValueMessage(msg.Element)
+		_, _ := state.ChangeValueMessage(msg.Element)
 	}
 }
 
