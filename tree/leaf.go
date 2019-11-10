@@ -59,3 +59,29 @@ func (l *Leaf) Erase(key int) bool {
 	}
 	return false
 }
+
+/*
+getData will return a pointer to the data of the given leaf
+*/
+func (l *Leaf) getData() *map[int]string {
+	return &l.Data
+}
+
+/*
+Change will change the value of a given key in the leaf
+*/
+func (l *Leaf) Change(key int, value string) bool {
+	if l.Contains(key) {
+		(*l.getData())[key] = value
+		return true
+	}
+	return false
+}
+
+/*
+Find will return a value by a given key
+*/
+func (l *Leaf) Find(key int) string {
+	v, _ := (*l.getData())[key]
+	return v
+}

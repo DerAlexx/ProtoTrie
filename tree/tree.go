@@ -95,8 +95,58 @@ func (n *Nodeactor) InsertInLeaf(pair Pair, id ID, token Token) (bool, error) {
 		targetMasterNode := n.iteraTor(pair.Key)
 		if targetMasterNode.IsLeft(pair.Key) {
 			targetMasterNode.LeftElement.(*Leaf).Insert(pair.Key, pair.Value)
+			return true, nil
 		}
 		targetMasterNode.RightElement.(*Leaf).Insert(pair.Key, pair.Value)
+		return true, nil
+	}
+	return false, errors.New("The given ID and Token doesnt match up")
+}
+
+/*
+Delete will delete a Value form a leaf
+*/
+func (n *Nodeactor) Delete(key int, id ID, token Token) (bool, error) {
+	if MatchIDandToken(id, token) {
+		targetMasterNode := n.iteraTor(key)
+		if targetMasterNode.IsLeft(key) {
+			targetMasterNode.LeftElement.(*Leaf).Erase(key)
+			return true, nil
+		}
+		targetMasterNode.RightElement.(*Leaf).Erase(key)
+		return true, nil
+	}
+	return false, errors.New("The given ID and Token doesnt match up")
+}
+
+/*
+Find will search in the Tree for a given Key and return the value and the key as Pair
+*/
+func (n *Nodeactor) Find(key int, id ID, token Token) (string, error) {
+	if MatchIDandToken(id, token) {
+		targetMasterNode := n.iteraTor(key)
+		if targetMasterNode.IsLeft(key) {
+			value := targetMasterNode.LeftElement.(*Leaf).Find(key)
+			return value, nil
+		}
+		value := targetMasterNode.RightElement.(*Leaf).Find(key)
+		return value, nil
+	}
+	return "", errors.New("The given ID and Token doesnt match up")
+}
+
+/*
+Change will change a value in a leaf
+*/
+func (n *Nodeactor) Change(pair Pair, id ID, token Token) (bool, error) {
+	if MatchIDandToken(id, token) {
+		targetMasterNode := n.iteraTor(pair.Key)
+		if targetMasterNode.IsLeft(pair.Key) {
+			targetMasterNode.LeftElement.(*Leaf).Change(pair.Key, pair.Value)
+			return true, nil
+		}
+		targetMasterNode.RightElement.(*Leaf).Change(pair.Key, pair.Value)
+		return true, nil
 	}
 	return false, errors.New("The given ID and Token doesnt match up")
 }
