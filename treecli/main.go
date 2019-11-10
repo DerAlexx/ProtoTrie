@@ -26,7 +26,7 @@ func sendDelete(id int, token string, key int) (bool, error) {
 		Key:   int32(key),
 	}
 	se, er := remotesend(message)
-	if er != nil && se {
+	if er == nil && se {
 		return true, nil
 	}
 	return false, fmt.Errorf("Cannot Delete %d", key)
@@ -45,7 +45,7 @@ func sendChange(id int, token string, pair tree.Pair) (bool, error) {
 		Value: pair.Value,
 	}
 	se, er := remotesend(message)
-	if er != nil && se {
+	if er == nil && se {
 		return true, nil
 	}
 	return false, fmt.Errorf("Cannot Change %d %s", pair.Key, pair.Value)
@@ -64,7 +64,7 @@ func sendInsert(id int, token string, pair tree.Pair) (bool, error) {
 		Value: pair.Value,
 	}
 	se, er := remotesend(message)
-	if er != nil && se {
+	if er == nil && se {
 		return true, nil
 	}
 	return false, fmt.Errorf("Cannot Insert %d %s", pair.Key, pair.Value)
@@ -80,7 +80,7 @@ func sendCreateTrie(size int) (bool, error) {
 		Size_: int32(size),
 	}
 	se, er := remotesend(message)
-	if er != nil && se {
+	if er == nil && se {
 		return true, nil
 	}
 	return false, fmt.Errorf("Cannot Create Tree")
@@ -97,7 +97,7 @@ func sendDeleteTrie(id int, token string) (bool, error) {
 		Id:    int32(id),
 	}
 	se, er := remotesend(message)
-	if er != nil && se {
+	if er == nil && se {
 		return true, nil
 	}
 	return false, fmt.Errorf("Cannot Change %d", id)
