@@ -1,15 +1,13 @@
 package tree
 
 import (
-	"fmt"
-
 	"github.com/AsynkronIT/protoactor-go/actor"
 )
 
 /*
-Insertmessage str
+InsertMessage str
 */
-type Insertmessage struct {
+type InsertMessage struct {
 	PID     actor.PID
 	Element Pair
 }
@@ -39,9 +37,9 @@ type FindMessage struct {
 }
 
 /*
-respMessage will be the response to a given request
+RespMessage will be the response to a given request
 */
-type respMessage struct {
+type RespMessage struct {
 	Ans interface{}
 }
 
@@ -81,14 +79,14 @@ So it will have to leafs as childs and store information in this leafs.
 func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	var result bool
 	switch msg := context.Message().(type) {
-	case *Insertmessage:
+	case *InsertMessage:
 		if state.IsLeft(msg.Element.Key) {
 			result := state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
 		} else {
 			result := state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
 		}
 		context.Send(msg.PID, &respMessage{
-			Ans: result
+			Ans: result,
 		})
 	case *DeleteMessage:
 		if state.IsLeft(msg.Element.Key) {
@@ -97,7 +95,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			result := state.RightElement.(*Leaf).Erase(msg.Element.Key)
 		}
 		context.Send(msg.PID, &respMessage{
-			Ans: result
+			Ans: result,
 		})
 	case *ChangeValueMessage:
 		if state.IsLeft(msg.Element.Key) {
@@ -106,7 +104,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			result := state.RightElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
 		}
 		context.Send(msg.PID, &respMessage{
-			Ans: result
+			Ans: result,
 		})
 	case *FindMessage:
 		if state.IsLeft(msg.Element.Key) {
@@ -115,7 +113,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			result := state.RightElement.(*Leaf).Find(msg.Element.Key, msg.Element.Value)
 		}
 		context.Send(msg.PID, &respMessage{
-			Ans: result
+			Ans: result,
 		})
 	default:
 		context.Send(msg.PID, &respMessage{Ans: "Cannot find the type of this Message"})
@@ -129,45 +127,10 @@ So it will have to nodes as childs and know's about this childs/manged them.
 */
 func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 	var result bool
-	switch msg := context.Message().(type) {
-	case *Insertmessage:
-		if state.IsLeft(msg.Element.Key) {
-			result := state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
-		} else {
-			result := state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
-		}
-		context.Send(msg.PID, &respMessage{
-			Ans: result
-		})
-	case *DeleteMessage:
-		if state.IsLeft(msg.Element.Key) {
-			result := state.LeftElement.(*Leaf).Erase(msg.Element.Key)
-		} else {
-			result := state.RightElement.(*Leaf).Erase(msg.Element.Key)
-		}
-		context.Send(msg.PID, &respMessage{
-			Ans: result
-		})
-	case *ChangeValueMessage:
-		if state.IsLeft(msg.Element.Key) {
-			result := state.LeftElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
-		} else {
-			result := state.RightElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
-		}
-		context.Send(msg.PID, &respMessage{
-			Ans: result
-		})
-	case *FindMessage:
-		if state.IsLeft(msg.Element.Key) {
-			result := state.LeftElement.(*Leaf).Find(msg.Element.Key, msg.Element.Value)
-		} else {
-			result := state.RightElement.(*Leaf).Find(msg.Element.Key, msg.Element.Value)
-		}
-		context.Send(msg.PID, &respMessage{
-			Ans: result
-		})
-	default:
+	switch msg := context.Message() {
+	case msg.IsLeft(msg.):
 		
+	default:
 		context.Send(msg.PID, &respMessage{Ans: "Cannot find the type of this Message"})
 	}
 
