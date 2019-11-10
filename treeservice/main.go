@@ -78,10 +78,12 @@ func addInToRootsMap(id ID, trie TrieContainer) {
 /*
 DeleteTrie will delete a Trie
 */
-func DeleteTrie(id ID, token Token) { // TODO hiding
+func deleteTrie(id ID, token Token) bool{ // TODO hiding
 	if MatchIDandToken(id, token) {
 		delete(RootNodes, id)
+		return true
 	}
+	return false
 }
 
 /*
@@ -98,61 +100,99 @@ func (*ServerRemoteActor) Receive(context actor.Context) { //TODO
 		
 		if (MatchIDandToken(id, tok)){
 			context.Send(rootpid, tree.DeleteMessage{
-				Key
+				PID := globalpid
+				Key : *messages.DeleteRequest.Key
+			})
+		}else {
+			context.Respond(&messages.Response{
+				SomeValue: "Wrong Combination of ID and Token",
 			})
 		}
-
-		//va, err := tree.Delete(*messages.DeleteRequest.Key, *messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
-		context.Respond(&messages.Response{
-			if (va && err == nil){
-				SomeValue: "Success",
-			}
-			SomeValue: "Couldnt Delete Entry",
-		})
 	case *messages.ChangeRequest:
-		pa := tree.Pair{
-			Key: int(*messages.DeleteRequest.Key),
-			Value: int(*messages.DeleteRequest.Value),
+		pa := Pair{
+			Key: int(*messages.ChangeRequest.Key),
+			Value: int(*messages.ChangeRequest.Value),
 		}
-		va, err := tree.Change(pa, *messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
-		context.Respond(&messages.Response{
-			if (va && err == nil){
-				SomeValue: "Success",
-			}
-			SomeValue: "Couldnt Change Entry",
-		})
+		id := *messages.ChangeRequest.Id
+		rootpid := GetPID(id)
+		tok := *messages.ChangeRequest.Token
+
+		if (MatchIDandToken(id, tok)){
+			context.Send(rootpid, tree.ChangeValueMessage{
+				PID := globalpid
+				Element : pa
+			})
+		} else {
+			context.Respond(&messages.Response{
+				SomeValue: "Wrong Combination of ID and Token",
+			})
+		}
 	case *messages.InsertRequest:
-		pa := tree.Pair{
-			Key: int(*messages.DeleteRequest.Key),
-			Value: int(*messages.DeleteRequest.Value),
+		pa := Pair{
+			Key: int(*messages.InsertRequest.Key),
+			Value: int(*messages.InsertRequest.Value),
 		}
-		va, err := tree.InsertInLeaf(pa, *messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
-		context.Respond(&messages.Response{
-			if (va && err == nil){
-				SomeValue: "Success",
-			}
-			SomeValue: "Couldnt Insert Entry",
-		})
+		id := *messages.InsertRequest.Id
+		rootpid := GetPID(id)
+		tok := *messages.InsertRequest.Token
+
+		if (MatchIDandToken(id, tok)){
+			context.Send(rootpid, tree.InsertMessage{
+				PID := globalpid
+				Element : pa
+			})
+		} else {
+			context.Respond(&messages.Response{
+				SomeValue: "Wrong Combination of ID and Token",
+			})
+		}
+	case *messages.FindRequest:
+		id := *messages.FindRequest.Id
+		rootpid := GetPID(id)
+		tok := *messages.FindRequest.Token
+
+		if (MatchIDandToken(id, tok)){
+			context.Send(rootpid, tree.FindMessage{
+				PID := globalpid
+				Key : *messages.FindRequest.Key
+			})
+		} else {
+			context.Respond(&messages.Response{
+				SomeValue: "Wrong Combination of ID and Token",
+			})
+		}
 	case *messages.CreateTreeRequest:
-		tree.AddNewTrie(int(msg.GetSize_()))
+		i,t,_ := tree.AddNewTrie(int(msg.GetSize_()))
 		context.Respond(&messages.Response{
-			SomeValue: "Success",
+			SomeValue: fmt.Sprintf("Your ID: %d, Your Token: %s", int(i),string(t)),
 		})
 	case *messages.DeleteTreeRequest:
-		tree.DeleteTrie(*messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
-		context.Respond(&messages.Response{
-			SomeValue: "Success",
-		})
-	}
-	case *messages.FindRequest:
-		va, err := tree.Find(*messages.DeleteRequest.Key, *messages.FindRequest.Id, *messages.DeleteRequest.Token)
-		context.Respond(&messages.Response{
-			if (va && err == nil){
+		i := tree.DeleteTrie(*messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
+		if (i){
+			context.Respond(&messages.Response{
 				SomeValue: "Success",
-			}
-			SomeValue: "Couldnt Find Entry",
-		})
-}
+			})
+		} else {
+			context.Respond(&messages.Response{
+				SomeValue: "Couldnt delete the tree",
+			})
+		}
+	}
+	case *tree.RespMessage:
+		switch msg.Ans.(type){
+			case bool:
+				if(Ans){
+					context.Respond(&messages.Response{
+						SomeValue: "Success",
+					}
+					SomeValue: "Operation couldnt be executed",	
+				}
+		}
+			case string:
+				context.Respond(&messages.Response{
+					SomeValue: Ans,
+				}
+	}
 }
 
 /*
@@ -166,7 +206,7 @@ func NewServerRemoteActor() actor.Actor {
 /*
 AddNewTrie will add a rootNode into the map and return the ID and the token for this trie
 */
-func AddNewTrie(context actor.RootContext, size int) (ID, Token, actor.PID) {
+func AddNewTrie(size int) (ID, Token, actor.PID) {
 	id := ID(getRandomID())
 	token := Token(hashcode.String(string(id)))
 	props := actor.PropsFromProducer(func() actor.Actor {
@@ -191,11 +231,14 @@ func MatchIDandToken(id ID, gtoken Token) bool {
 	return RootNodes[id].Token == gtoken
 }
 
+var actor.PID globalpid
+context := actor.EmptyRootContext
+
 /*
 starts an actorsystem that can be reached remotely
 */
 func main() {
-	context := actor.EmptyRootContext
+	
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -203,7 +246,8 @@ func main() {
 
 	remote.Start("localhost:8091")
 
+	prop := actor.PropsFromProducer(NewServerRemoteActor)
+	globalpid = context.Spawn(prop)
 	// register a name for our local actor so that it can be spawned remotely
-	remote.Register("hello", actor.PropsFromProducer(NewServerRemoteActor))
-
+	remote.Register("hello", prop)
 }
