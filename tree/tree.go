@@ -154,8 +154,7 @@ func (n *Nodeactor) Change(pair Pair, id ID, token Token) (bool, error) {
 /*
 AddNewTrie will add a rootNode into the map and return the ID and the token for this trie
 */
-func AddNewTrie(size int) (ID, Token, actor.PID) {
-	context := actor.EmptyRootContext
+func AddNewTrie(context actor.RootContext, size int) (ID, Token, actor.PID) {
 	id := ID(getRandomID())
 	token := Token(hashcode.String(string(id)))
 	props := actor.PropsFromProducer(func() actor.Actor {

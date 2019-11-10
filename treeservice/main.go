@@ -15,6 +15,8 @@ ServerRemoteActor represents a RemoteActor in the service
 */
 type ServerRemoteActor struct{}
 
+context := actor.EmptyRootContext
+
 /*
 Receive will receive different types of messages from the client. Each message is responsible for one type of action that the tree can execute (e.g. delete a Key, Create a Tree)
 After the execution it will return a message to the client
@@ -22,45 +24,53 @@ After the execution it will return a message to the client
 func (*ServerRemoteActor) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *messages.DeleteRequest:
-		//var, err := Delete(*messages.DeleteRequest.Key, *messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
+		nod := tree.GetPID(tree.ID(*messages.DeleteRequest.Id))
+		//va, err := tree.Delete(*messages.DeleteRequest.Key, *messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
 		context.Respond(&messages.Response{
-			if (var && err == nil){
+			if (va && err == nil){
 				SomeValue: "Success",
 			}
 			SomeValue: "Couldnt Delete Entry",
 		})
 	case *messages.ChangeRequest:
-		//var, err := Change(*messages.DeleteRequest.P, *messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
+		pa := tree.Pair{
+			Key: int(*messages.DeleteRequest.Key),
+			Value: int(*messages.DeleteRequest.Value),
+		}
+		va, err := tree.Change(pa, *messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
 		context.Respond(&messages.Response{
-			if (var && err == nil){
+			if (va && err == nil){
 				SomeValue: "Success",
 			}
 			SomeValue: "Couldnt Change Entry",
 		})
 	case *messages.InsertRequest:
-		//var, err := InsertInLeaf(*messages.DeleteRequest.P, *messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
+		pa := tree.Pair{
+			Key: int(*messages.DeleteRequest.Key),
+			Value: int(*messages.DeleteRequest.Value),
+		}
+		va, err := tree.InsertInLeaf(pa, *messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
 		context.Respond(&messages.Response{
-			if (var && err == nil){
+			if (va && err == nil){
 				SomeValue: "Success",
 			}
 			SomeValue: "Couldnt Insert Entry",
 		})
 	case *messages.CreateTreeRequest:
 		tree.AddNewTrie(int(msg.GetSize_()))
-		// int(*(*(messages.CreateTreeRequest).Size))
 		context.Respond(&messages.Response{
 			SomeValue: "Success",
 		})
 	case *messages.DeleteTreeRequest:
-		//DeleteTrie(*messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
+		tree.DeleteTrie(*messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
 		context.Respond(&messages.Response{
 			SomeValue: "Success",
 		})
 	}
 	case *messages.FindRequest:
-		//var, err := Find(*messages.DeleteRequest.Key, *messages.FindRequest.Id, *messages.DeleteRequest.Token)
+		va, err := tree.Find(*messages.DeleteRequest.Key, *messages.FindRequest.Id, *messages.DeleteRequest.Token)
 		context.Respond(&messages.Response{
-			if (var && err == nil){
+			if (va && err == nil){
 				SomeValue: "Success",
 			}
 			SomeValue: "Couldnt Find Entry",
