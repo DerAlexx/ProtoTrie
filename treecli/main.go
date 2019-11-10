@@ -67,7 +67,7 @@ func sendFind(id int, token string, key int) (bool, error) {
 	if er == nil && se {
 		return true, nil
 	}
-	return false, fmt.Errorf("Cannot Find %d %s", pair.Key, pair.Value)
+	return false, fmt.Errorf("Cannot Find %d %s", key)
 }
 
 /*
@@ -212,7 +212,7 @@ func remotesend(mess interface{}) (bool, error) {
 
 	props := actor.PropsFromProducer(func() actor.Actor {
 		wg.Add(1)
-		return &ClientRemoteActor{0, wg}
+		return &ClientRemoteActor{0, &wg}
 	})
 
 	pid := context.Spawn(props)

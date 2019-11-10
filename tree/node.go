@@ -1,6 +1,8 @@
 package tree
 
 import (
+	"fmt"
+
 	"github.com/AsynkronIT/protoactor-go/actor"
 )
 
@@ -77,46 +79,44 @@ StoringNodeBehavior Method to set the Behavior of a Node to a Storing Node.
 So it will have to leafs as childs and store information in this leafs.
 */
 func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
-	var result bool
+	var result interface{}
 	switch msg := context.Message().(type) {
 	case *InsertMessage:
 		if state.IsLeft(msg.Element.Key) {
-			result := state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
+			result = state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
 		} else {
-			result := state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
+			result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
 		}
-		context.Send(msg.PID, &respMessage{
+		context.Send(&msg.PID, &RespMessage{
 			Ans: result,
 		})
 	case *DeleteMessage:
-		if state.IsLeft(msg.Element.Key) {
-			result := state.LeftElement.(*Leaf).Erase(msg.Element.Key)
+		if state.IsLeft(msg.Key) {
+			result = state.LeftElement.(*Leaf).Erase(msg.Key)
 		} else {
-			result := state.RightElement.(*Leaf).Erase(msg.Element.Key)
+			result = state.RightElement.(*Leaf).Erase(msg.Key)
 		}
-		context.Send(msg.PID, &respMessage{
+		context.Send(&msg.PID, &RespMessage{
 			Ans: result,
 		})
 	case *ChangeValueMessage:
 		if state.IsLeft(msg.Element.Key) {
-			result := state.LeftElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
+			result = state.LeftElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
 		} else {
-			result := state.RightElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
+			result = state.RightElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
 		}
-		context.Send(msg.PID, &respMessage{
+		context.Send(&msg.PID, &RespMessage{
 			Ans: result,
 		})
 	case *FindMessage:
-		if state.IsLeft(msg.Element.Key) {
-			result := state.LeftElement.(*Leaf).Find(msg.Element.Key, msg.Element.Value)
+		if state.IsLeft(msg.Key) {
+			result = state.LeftElement.(*Leaf).Find(msg.Key)
 		} else {
-			result := state.RightElement.(*Leaf).Find(msg.Element.Key, msg.Element.Value)
+			result = state.RightElement.(*Leaf).Find(msg.Key)
 		}
-		context.Send(msg.PID, &respMessage{
+		context.Send(&msg.PID, &RespMessage{
 			Ans: result,
 		})
-	default:
-		context.Send(msg.PID, &respMessage{Ans: "Cannot find the type of this Message"})
 	}
 
 }
@@ -126,14 +126,12 @@ KnownNodeBehavior Method to set the Behavoir of a Node to a Knowing Node.
 So it will have to nodes as childs and know's about this childs/manged them.
 */
 func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
-	var result bool
-	switch msg := context.Message() {
-	case msg.IsLeft(msg.):
-		
+	switch msg := context.Message().(type) {
+	case *InsertMessage, *DeleteMessage, *FindMessage, *ChangeValueMessage:
+		context.Send(state.LeftElement.(*actor.PID), &msg)
 	default:
-		context.Send(msg.PID, &respMessage{Ans: "Cannot find the type of this Message"})
+		fmt.Println(msg)
 	}
-
 }
 
 /*

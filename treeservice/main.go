@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
+	"math/rand"
 	"sync"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/log"
 	"github.com/AsynkronIT/protoactor-go/remote"
+	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/ob-vss-ws19/blatt-3-pwn/messages"
 	"github.com/ob-vss-ws19/blatt-3-pwn/tree"
 )
@@ -64,7 +67,7 @@ func getRandomID() int {
 /*
 GetPID will return the PID of the rootnode of a given Trie-ID
 */
-func getPID(id ID) *actor.PID { //TODO hiding
+func getPID(id ID) *actor.PID {
 	return RootNodes[id].Pid
 }
 
@@ -78,7 +81,7 @@ func addInToRootsMap(id ID, trie TrieContainer) {
 /*
 DeleteTrie will delete a Trie
 */
-func deleteTrie(id ID, token Token) bool{ // TODO hiding
+func deleteTrie(id ID, token Token) bool {
 	if MatchIDandToken(id, token) {
 		delete(RootNodes, id)
 		return true
@@ -93,82 +96,96 @@ After the execution it will return a message to the client
 func (*ServerRemoteActor) Receive(context actor.Context) { //TODO
 	switch msg := context.Message().(type) {
 	case *messages.DeleteRequest:
-		
-		id := *messages.DeleteRequest.Id
-		rootpid := GetPID(id)
-		tok := *messages.DeleteRequest.Token
-		
-		if (MatchIDandToken(id, tok)){
-			context.Send(rootpid, tree.DeleteMessage{
-				PID := globalpid
-				Key : *messages.DeleteRequest.Key
-			})
-		}else {
-			context.Respond(&messages.Response{
-				SomeValue: "Wrong Combination of ID and Token",
-			})
-		}
+		/*
+			id := *messages.DeleteRequest.Id
+					rootpid := GetPID(id)
+					tok := *messages.DeleteRequest.Token
+
+					if MatchIDandToken(id, tok) {
+						context.Send(rootpid, tree.DeleteMessage{
+							PID: globalpid,
+							Key: *messages.DeleteRequest.Key,
+						})
+					} else {
+						context.Respond(&messages.Response{
+							SomeValue: "Wrong Combination of ID and Token",
+						})
+					}
+		*/
 	case *messages.ChangeRequest:
-		pa := Pair{
-			Key: int(*messages.ChangeRequest.Key),
-			Value: int(*messages.ChangeRequest.Value),
-		}
-		id := *messages.ChangeRequest.Id
-		rootpid := GetPID(id)
-		tok := *messages.ChangeRequest.Token
+		/*
+			pa := Pair{
+						Key:   int(*messages.ChangeRequest.Key),
+						Value: int(*messages.ChangeRequest.Value),
+					}
+					id := *messages.ChangeRequest.Id
+					rootpid := GetPID(id)
+					tok := *messages.ChangeRequest.Token
 
-		if (MatchIDandToken(id, tok)){
-			context.Send(rootpid, tree.ChangeValueMessage{
-				PID := globalpid
-				Element : pa
-			})
-		} else {
-			context.Respond(&messages.Response{
-				SomeValue: "Wrong Combination of ID and Token",
-			})
-		}
+					if MatchIDandToken(id, tok) {
+						context.Send(rootpid, tree.ChangeValueMessage{
+							PID:     globalpid,
+							Element: pa,
+						})
+					} else {
+						context.Respond(&messages.Response{
+							SomeValue: "Wrong Combination of ID and Token",
+						})
+					}
+		*/
 	case *messages.InsertRequest:
-		pa := Pair{
-			Key: int(*messages.InsertRequest.Key),
-			Value: int(*messages.InsertRequest.Value),
-		}
-		id := *messages.InsertRequest.Id
-		rootpid := GetPID(id)
-		tok := *messages.InsertRequest.Token
+		/*
+			pa := Pair{
+						Key:   int(*messages.InsertRequest.Key),
+						Value: int(*messages.InsertRequest.Value),
+					}
+					id := *messages.InsertRequest.Id
+					rootpid := GetPID(id)
+					tok := *messages.InsertRequest.Token
 
-		if (MatchIDandToken(id, tok)){
-			context.Send(rootpid, tree.InsertMessage{
-				PID := globalpid
-				Element : pa
-			})
-		} else {
-			context.Respond(&messages.Response{
-				SomeValue: "Wrong Combination of ID and Token",
-			})
-		}
+					if MatchIDandToken(id, tok) {
+						context.Send(rootpid, tree.InsertMessage{
+							PID:     globalpid,
+							Element: pa,
+						})
+					} else {
+						context.Respond(&messages.Response{
+							SomeValue: "Wrong Combination of ID and Token",
+						})
+					}
+		*/
 	case *messages.FindRequest:
-		id := *messages.FindRequest.Id
-		rootpid := GetPID(id)
-		tok := *messages.FindRequest.Token
+		/*
+			id := *messages.FindRequest.Id
+					rootpid := getPID(id)
+					tok := *messages.FindRequest.Token
 
-		if (MatchIDandToken(id, tok)){
-			context.Send(rootpid, tree.FindMessage{
-				PID := globalpid
-				Key : *messages.FindRequest.Key
-			})
-		} else {
-			context.Respond(&messages.Response{
-				SomeValue: "Wrong Combination of ID and Token",
-			})
-		}
+					if MatchIDandToken(id, tok) {
+						context.Send(rootpid, tree.FindMessage{
+							PID: globalpid,
+							Key: *messages.FindRequest.Key,
+						})
+					} else {
+						context.Respond(&messages.Response{
+							SomeValue: "Wrong Combination of ID and Token",
+						})
+					}
+		*/
 	case *messages.CreateTreeRequest:
-		i,t,_ := tree.AddNewTrie(int(msg.GetSize_()))
+		i, t, _ := AddNewTrie(int(msg.GetSize_()))
 		context.Respond(&messages.Response{
-			SomeValue: fmt.Sprintf("Your ID: %d, Your Token: %s", int(i),string(t)),
+			SomeValue: fmt.Sprintf("Your ID: %d, Your Token: %s", int(i), string(t)),
 		})
 	case *messages.DeleteTreeRequest:
-		i := tree.DeleteTrie(*messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
-		if (i){
+		// i := tree.DeleteTrie(*messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
+		// --> Muss an mich gesendet werden will du nicht tree.Delete Node aufrufen kannst
+		// --> Lösung ist die PID der Richtigen RootNode zu finden und dann context.send(PID, message)
+		// Uns das ergebnis der Message wird dann unten von dem (*tree.RespMessage) aufgefangen.
+		// Also hier nur an die richtige Root node send und checken ob ID zu Token pass
+		// und dann ab und an mal den Compiler laufen lassen.
+		// Selbe gilf für alle außer tree.RespMessage, DeleteTrie und CreateTrie da diese vom Service erzeugt
+		// werden. Alle betreffenden Felder sollten auskommentiert sein!
+		if true {
 			context.Respond(&messages.Response{
 				SomeValue: "Success",
 			})
@@ -177,21 +194,24 @@ func (*ServerRemoteActor) Receive(context actor.Context) { //TODO
 				SomeValue: "Couldnt delete the tree",
 			})
 		}
-	}
 	case *tree.RespMessage:
-		switch msg.Ans.(type){
-			case bool:
-				if(Ans){
-					context.Respond(&messages.Response{
-						SomeValue: "Success",
-					}
-					SomeValue: "Operation couldnt be executed",	
-				}
-		}
-			case string:
+		switch val := msg.Ans.(type) {
+		case bool:
+			if val {
 				context.Respond(&messages.Response{
-					SomeValue: Ans,
-				}
+					SomeValue: "Success",
+				})
+
+			} else {
+				context.Respond(&messages.Response{
+					SomeValue: "Operation couldnt be executed",
+				})
+			}
+		case string:
+			context.Respond(&messages.Response{
+				SomeValue: msg.Ans.(string),
+			})
+		}
 	}
 }
 
@@ -210,7 +230,7 @@ func AddNewTrie(size int) (ID, Token, actor.PID) {
 	id := ID(getRandomID())
 	token := Token(hashcode.String(string(id)))
 	props := actor.PropsFromProducer(func() actor.Actor {
-		return CreateBasicNode()
+		return tree.CreateBasicNode()
 	})
 	pid := context.Spawn(props)
 	addInToRootsMap(id, TrieContainer{ //TODO nach struct richten
@@ -218,7 +238,7 @@ func AddNewTrie(size int) (ID, Token, actor.PID) {
 		Token:   token,
 		Pid:     pid,
 		Size:    size,
-		Context: context,
+		Context: &context,
 	})
 	return id, token, *pid
 }
@@ -231,14 +251,14 @@ func MatchIDandToken(id ID, gtoken Token) bool {
 	return RootNodes[id].Token == gtoken
 }
 
-var actor.PID globalpid
-context := actor.EmptyRootContext
+var globalpid actor.PID
+var context actor.RootContext
 
 /*
 starts an actorsystem that can be reached remotely
 */
 func main() {
-	
+
 	var wg sync.WaitGroup
 
 	wg.Add(1)
@@ -247,7 +267,7 @@ func main() {
 	remote.Start("localhost:8091")
 
 	prop := actor.PropsFromProducer(NewServerRemoteActor)
-	globalpid = context.Spawn(prop)
+	globalpid = *context.Spawn(prop)
 	// register a name for our local actor so that it can be spawned remotely
 	remote.Register("hello", prop)
 }
