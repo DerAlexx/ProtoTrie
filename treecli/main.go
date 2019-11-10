@@ -146,6 +146,7 @@ func main() {
 		}
 		fmt.Println("Trie will not be deleted")
 	} else if *createTree != -1 {
+		fmt.Println("Before")
 		_, _ = sendCreateTrie(*createTree)
 		fmt.Println("hahahahah")
 	} else {
