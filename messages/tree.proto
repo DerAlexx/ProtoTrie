@@ -9,6 +9,13 @@ message DeleteRequest {
     int32 Key = 3;
 }
 
+// FindRequest contains the information to find an entry in the tree. from client to service
+message FindRequest {
+    string Token = 1;
+    int32 Id = 2;
+    int32 Key = 3;
+}
+
 // ChangeRequest contains the information to change an entry in the tree. from client to service
 message ChangeRequest {
     string Token = 1;

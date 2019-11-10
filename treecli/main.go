@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
@@ -49,6 +50,24 @@ func sendChange(id int, token string, pair tree.Pair) (bool, error) {
 		return true, nil
 	}
 	return false, fmt.Errorf("Cannot Change %d %s", pair.Key, pair.Value)
+}
+
+/*
+inserts information in a message which is necessary to find an entry in the tree
+calls the function that sends the message to the service
+returns true if that was successful
+*/
+func sendFind(id int, token string, key int) (bool, error) {
+	message := &messages.FindRequest{
+		Token: token,
+		Id:    int32(id),
+		Key:   int32(key),
+	}
+	se, er := remotesend(message)
+	if er == nil && se {
+		return true, nil
+	}
+	return false, fmt.Errorf("Cannot Find %d %s", pair.Key, pair.Value)
 }
 
 /*
@@ -159,6 +178,7 @@ ClientRemoteActor represents a RemoteActore in the client
 */
 type ClientRemoteActor struct {
 	count int
+	wg    *sync.WaitGroup
 }
 
 /*
@@ -171,6 +191,8 @@ func (state *ClientRemoteActor) Receive(context actor.Context) {
 			case *messages.Response:
 				state.count++
 				fmt.Println(state.count, msg)
+			case *actor.Stopped:
+				state.wg.Done()
 			default:
 				fmt.Println("Test")
 			}
@@ -184,18 +206,29 @@ func remotesend(mess interface{}) (bool, error) {
 
 	remote.Start("localhost:8090")
 
+	var wg sync.WaitGroup
+
 	context := actor.EmptyRootContext
-	props := actor.PropsFromProducer(func() actor.Actor { return &ClientRemoteActor{} })
+
+	props := actor.PropsFromProducer(func() actor.Actor {
+		wg.Add(1)
+		return &ClientRemoteActor{0, wg}
+	})
+
 	pid := context.Spawn(props)
 	fmt.Println(pid)
 
-	spawnResponse, err := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
+	fmt.Println("Sleeping 5 seconds...")
+	time.Sleep(5 * time.Second)
+	fmt.Println("Awake...")
+	fmt.Printf("Trying to connect")
+
+	spawnResponse, err := remote.SpawnNamed("localhost:8091", "remote", "hello", 5*time.Second)
 	if err == nil {
-		time.Sleep(5 * time.Second)
 		context.RequestWithCustomSender(spawnResponse.Pid, mess, pid)
 		return true, nil
 	}
-
+	wg.Wait()
 	return false, errors.New("Cannot send to remote Controller")
 
 }
