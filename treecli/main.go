@@ -164,13 +164,16 @@ type ClientRemoteActor struct {
 Receive will receive the response from the Service. Either if the action connected to the message could be executed or not
 */
 func (state *ClientRemoteActor) Receive(context actor.Context) {
-	switch msg := context.Message().(type) {
-	case *messages.Response:
-		state.count++
-		fmt.Println(state.count, msg)
-	default:
-		fmt.Println("Test")
-	}
+	fmt.Println(context.Message())
+	/*
+		switch msg := context.Message().(type) {
+			case *messages.Response:
+				state.count++
+				fmt.Println(state.count, msg)
+			default:
+				fmt.Println("Test")
+			}
+	*/
 }
 
 /*
