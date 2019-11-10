@@ -64,7 +64,7 @@ func getRandomID() int {
 /*
 GetPID will return the PID of the rootnode of a given Trie-ID
 */
-func GetPID(id ID) *actor.PID { //TODO hiding
+func getPID(id ID) *actor.PID { //TODO hiding
 	return RootNodes[id].Pid
 }
 
@@ -91,7 +91,17 @@ After the execution it will return a message to the client
 func (*ServerRemoteActor) Receive(context actor.Context) { //TODO
 	switch msg := context.Message().(type) {
 	case *messages.DeleteRequest:
-		nod := tree.GetPID(tree.ID(*messages.DeleteRequest.Id))
+		
+		id := *messages.DeleteRequest.Id
+		rootpid := GetPID(id)
+		tok := *messages.DeleteRequest.Token
+		
+		if (MatchIDandToken(id, tok)){
+			context.Send(rootpid, tree.DeleteMessage{
+				Key
+			})
+		}
+
 		//va, err := tree.Delete(*messages.DeleteRequest.Key, *messages.DeleteRequest.Id, *messages.DeleteRequest.Token)
 		context.Respond(&messages.Response{
 			if (va && err == nil){
