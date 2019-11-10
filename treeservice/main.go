@@ -10,12 +10,13 @@ import (
 )
 
 /*
-ServerRemoteActor w
+ServerRemoteActor represents a RemoteActor in the service
 */
 type ServerRemoteActor struct{}
 
 /*
-Receive w
+Receive will receive different types of messages from the client. Each message is responsible for one type of action that the tree can execute (e.g. delete a Key, Create a Tree)
+After the execution it will return a message to the client
 */
 func (*ServerRemoteActor) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
@@ -49,12 +50,15 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 }
 
 /*
-NewServerRemoteActor will
+NewServerRemoteActor will return a ServerRemoteActor
 */
 func NewServerRemoteActor() actor.Actor {
 	return &ServerRemoteActor{}
 }
 
+/*
+starts an actorsystem that can be reached remotely
+*/
 func main() {
 	var wg sync.WaitGroup
 
@@ -62,6 +66,7 @@ func main() {
 	defer wg.Wait()
 	remote.Start("localhost:8091")
 
+	// register a name for our local actor so that it can be spawned remotely
 	remote.Register("hello", actor.PropsFromProducer(NewServerRemoteActor))
 
 }

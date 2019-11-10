@@ -14,6 +14,11 @@ import (
 	"github.com/ob-vss-ws19/blatt-3-pwn/tree"
 )
 
+/*
+inserts information in a message which is necessary to delete an entry in the tree
+calls the function that sends the message to the service
+returns true if that was successful
+*/
 func sendDelete(id int, token string, key int) (bool, error) {
 	message := &messages.DeleteRequest{
 		Token: token,
@@ -27,6 +32,11 @@ func sendDelete(id int, token string, key int) (bool, error) {
 	return false, fmt.Errorf("Cannot Delete %d", key)
 }
 
+/*
+inserts information in a message which is necessary to change an entry in the tree
+calls the function that sends the message to the service
+returns true if that was successful
+*/
 func sendChange(id int, token string, pair tree.Pair) (bool, error) {
 	message := &messages.ChangeRequest{
 		Token: token,
@@ -41,6 +51,11 @@ func sendChange(id int, token string, pair tree.Pair) (bool, error) {
 	return false, fmt.Errorf("Cannot Change %d %s", pair.Key, pair.Value)
 }
 
+/*
+inserts information in a message which is necessary to insert an entry in the tree
+calls the function that sends the message to the service
+returns true if that was successful
+*/
 func sendInsert(id int, token string, pair tree.Pair) (bool, error) {
 	message := &messages.InsertRequest{
 		Token: token,
@@ -55,6 +70,11 @@ func sendInsert(id int, token string, pair tree.Pair) (bool, error) {
 	return false, fmt.Errorf("Cannot Insert %d %s", pair.Key, pair.Value)
 }
 
+/*
+inserts information in a message which is necessary to creat a tree
+calls the function that sends the message to the service
+returns true if that was successful
+*/
 func sendCreateTrie(size int) (bool, error) {
 	message := &messages.CreateTreeRequest{
 		Size_: int32(size),
@@ -66,6 +86,11 @@ func sendCreateTrie(size int) (bool, error) {
 	return false, fmt.Errorf("Cannot Create Tree")
 }
 
+/*
+inserts information in a message which is necessary to delete a tree
+calls the function that sends the message to the service
+returns true if that was successful
+*/
 func sendDeleteTrie(id int, token string) (bool, error) {
 	message := &messages.DeleteTreeRequest{
 		Token: token,
@@ -78,6 +103,12 @@ func sendDeleteTrie(id int, token string) (bool, error) {
 	return false, fmt.Errorf("Cannot Change %d", id)
 }
 
+/*
+starts the cli. The cli uses command line parameters
+ #create a tree
+ #delete a tree
+ #search, insert and delete entries
+*/
 func main() {
 	fmt.Println("Hello Tree-CLI!")
 	createTree := flag.Int("create-trie", -1, "Create a trie and enter the size of the leafs.")
@@ -123,14 +154,14 @@ func main() {
 }
 
 /*
-ClientRemoteActor will
+ClientRemoteActor represents a RemoteActore in the client
 */
 type ClientRemoteActor struct {
 	count int
 }
 
 /*
-Receive will
+Receive will receive the response from the Service. Either if the action connected to the message could be executed or not
 */
 func (state *ClientRemoteActor) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
@@ -142,6 +173,9 @@ func (state *ClientRemoteActor) Receive(context actor.Context) {
 	}
 }
 
+/*
+starts an actorsystem that can be reached remotely and can send messages to the service
+*/
 func remotesend(mess interface{}) (bool, error) {
 
 	remote.Start("localhost:8090")
