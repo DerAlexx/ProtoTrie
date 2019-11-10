@@ -186,7 +186,7 @@ func remotesend(mess interface{}) (bool, error) {
 	fmt.Println(pid)
 
 	spawnResponse, err := remote.SpawnNamed("localhost:8091", "remote", "hello", time.Second)
-	if err != nil {
+	if err == nil {
 		time.Sleep(5 * time.Second)
 		context.RequestWithCustomSender(spawnResponse.Pid, mess, pid)
 		return true, nil

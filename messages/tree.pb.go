@@ -24,6 +24,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// DeleteRequest contains the information to delete an entry from the tree. from client to service
 type DeleteRequest struct {
 	Token string `protobuf:"bytes,1,opt,name=Token,proto3" json:"Token,omitempty"`
 	Id    int32  `protobuf:"varint,2,opt,name=Id,proto3" json:"Id,omitempty"`
@@ -83,6 +84,7 @@ func (m *DeleteRequest) GetKey() int32 {
 	return 0
 }
 
+// ChangeRequest contains the information to change an entry in the tree. from client to service
 type ChangeRequest struct {
 	Token string `protobuf:"bytes,1,opt,name=Token,proto3" json:"Token,omitempty"`
 	Id    int32  `protobuf:"varint,2,opt,name=Id,proto3" json:"Id,omitempty"`
@@ -150,6 +152,7 @@ func (m *ChangeRequest) GetValue() string {
 	return ""
 }
 
+// InsertRequest contains the information to insert an entry in the tree. from client to service
 type InsertRequest struct {
 	Token string `protobuf:"bytes,1,opt,name=Token,proto3" json:"Token,omitempty"`
 	Id    int32  `protobuf:"varint,2,opt,name=Id,proto3" json:"Id,omitempty"`
@@ -217,6 +220,7 @@ func (m *InsertRequest) GetValue() string {
 	return ""
 }
 
+// CreateTreeRequest contains the information to create a tree. from client to service
 type CreateTreeRequest struct {
 	Size_ int32 `protobuf:"varint,1,opt,name=Size,proto3" json:"Size,omitempty"`
 }
@@ -260,6 +264,7 @@ func (m *CreateTreeRequest) GetSize_() int32 {
 	return 0
 }
 
+// DeleteTreeRequest contains the information to delete a tree. from client to service
 type DeleteTreeRequest struct {
 	Token string `protobuf:"bytes,1,opt,name=Token,proto3" json:"Token,omitempty"`
 	Id    int32  `protobuf:"varint,2,opt,name=Id,proto3" json:"Id,omitempty"`
@@ -311,6 +316,7 @@ func (m *DeleteTreeRequest) GetId() int32 {
 	return 0
 }
 
+// Response contains the response from the service
 type Response struct {
 	SomeValue string `protobuf:"bytes,1,opt,name=SomeValue,proto3" json:"SomeValue,omitempty"`
 }
