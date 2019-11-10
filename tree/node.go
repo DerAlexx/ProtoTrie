@@ -26,6 +26,13 @@ type ChangeValueMessage struct {
 }
 
 /*
+FindMessage will
+*/
+type FindMessage struct {
+	Key int
+}
+
+/*
 Pair is a representation of a Keys Value Combinations
 */
 type Pair struct {
@@ -103,6 +110,13 @@ func (state *Nodeactor) SetStoreable(value int) {
 }
 
 /*
+getConstrain will return the Storeable of a node
+*/
+func (state *Nodeactor) getConstrain() int {
+	return state.Storable
+}
+
+/*
 IsLeft will check whether a given Key belongs to the left leaf incase the it does it will return true
 otherwise it will return false
 */
@@ -116,13 +130,6 @@ func (state *Nodeactor) IsLeft(value int) bool {
 		return true
 	}
 	return false
-}
-
-/*
-getConstrain will return the Storeable of a node
-*/
-func (state *Nodeactor) getConstrain() int {
-	return state.Storable
 }
 
 /*
