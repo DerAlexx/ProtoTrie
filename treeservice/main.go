@@ -65,7 +65,7 @@ func getRandomID() int {
 }
 
 /*
-GetPID will return the PID of the rootnode of a given Trie-ID
+getPID will return the PID of the rootnode of a given Trie-ID
 */
 func getPID(id ID) *actor.PID {
 	return RootNodes[id].Pid
@@ -96,15 +96,13 @@ After the execution it will return a message to the client
 func (*ServerRemoteActor) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *messages.DeleteRequest:
-
-		id := *messages.DeleteRequest.Id
-		rootpid := GetPID(id)
-		tok := *messages.DeleteRequest.Token
-
+		id := ID(int(msg.GetId()))
+		rootpid := getPID(id)
+		tok := Token(msg.GetToken())
 		if MatchIDandToken(id, tok) {
 			context.Send(rootpid, tree.DeleteMessage{
 				PID: globalpid,
-				Key: *messages.DeleteRequest.Key,
+				Key: int(msg.GetKey()),
 			})
 		} else {
 			context.Respond(&messages.Response{
@@ -112,13 +110,13 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 			})
 		}
 	case *messages.ChangeRequest:
-		pa := Pair{
-			Key:   int(*messages.ChangeRequest.Key),
-			Value: int(*messages.ChangeRequest.Value),
+		pa := tree.Pair{
+			Key:   int(msg.GetKey()),
+			Value: msg.GetValue(),
 		}
-		id := *messages.ChangeRequest.Id
-		rootpid := GetPID(id)
-		tok := *messages.ChangeRequest.Token
+		id := ID(msg.GetId())
+		rootpid := getPID(id)
+		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
 			context.Send(rootpid, tree.ChangeValueMessage{
@@ -131,13 +129,13 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 			})
 		}
 	case *messages.InsertRequest:
-		pa := Pair{
-			Key:   int(*messages.InsertRequest.Key),
-			Value: int(*messages.InsertRequest.Value),
+		pa := tree.Pair{
+			Key:   int(msg.GetKey()),
+			Value: msg.GetValue(),
 		}
-		id := *messages.InsertRequest.Id
-		rootpid := GetPID(id)
-		tok := *messages.InsertRequest.Token
+		id := ID(msg.GetId())
+		rootpid := getPID(id)
+		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
 			context.Send(rootpid, tree.InsertMessage{
@@ -150,14 +148,14 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 			})
 		}
 	case *messages.FindRequest:
-		id := *messages.FindRequest.Id
+		id := ID(msg.GetId())
 		rootpid := getPID(id)
-		tok := *messages.FindRequest.Token
+		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
 			context.Send(rootpid, tree.FindMessage{
 				PID: globalpid,
-				Key: *messages.FindRequest.Key,
+				Key: int(msg.GetKey()),
 			})
 		} else {
 			context.Respond(&messages.Response{
