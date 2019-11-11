@@ -69,6 +69,7 @@ CreateBasicNode will return a Basic node containing the parentnode and a left, r
 */
 func CreateBasicNode() *Nodeactor {
 	return &Nodeactor{
+		//TODO Add a basic Behavior
 		Storable:     -1,
 		LeftElement:  NewLeaf(),
 		RightElement: NewLeaf(),
@@ -230,3 +231,9 @@ func sortMap(m map[int]string) (r1 map[int]string, r2 map[int]string) {
 
 	return r1, r2
 }
+
+// TODO Insert --> und daraufhin wechsel das verhaltens und Erweiterung
+// des baums und einpflege der
+// Daten in die neuen Leafs.
+
+// TODO Split
