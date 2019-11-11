@@ -2,6 +2,7 @@ package tree
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 )
@@ -180,4 +181,30 @@ Receive will recieve some messages and direct them to the nodes
 */
 func (state *Nodeactor) Receive(context actor.Context) {
 	state.Behavior.Receive(context)
+}
+
+func sortMap(m map[int]string) (r1 map[int]string, r2 map[int]string) {
+	keys := make([]int, 0, len(m))
+	pairs := make([]Pair, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+	for k := range keys {
+		pairs = append(pairs, Pair{
+			Key:   k,
+			Value: m[k],
+		})
+	}
+	mapsizeleft := len(pairs) / 2
+
+	for i := 0; i < mapsizeleft; i++ {
+		r1[pairs[i].Key] = pairs[i].Value
+	}
+
+	for ih := mapsizeleft; ih < len(pairs); ih++ {
+		r2[pairs[ih].Key] = pairs[ih].Value
+	}
+
+	return r1, r2
 }
