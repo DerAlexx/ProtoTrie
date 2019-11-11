@@ -183,6 +183,12 @@ func (state *Nodeactor) Receive(context actor.Context) {
 	state.Behavior.Receive(context)
 }
 
+func (state *Nodeactor) splitNode() []map[int]string {
+	leftmapone, leftmaptwo := sortMap(*state.LeftElement.(*Leaf).getData())
+	rightmapone, rightmaptwo := sortMap(*state.RightElement.(*Leaf).getData())
+	return []map[int]string{leftmapone, leftmaptwo, rightmapone, rightmaptwo}
+}
+
 func sortMap(m map[int]string) (r1 map[int]string, r2 map[int]string) {
 	keys := make([]int, 0, len(m))
 	pairs := make([]Pair, 0, len(m))
