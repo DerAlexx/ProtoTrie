@@ -127,8 +127,30 @@ So it will have to nodes as childs and know's about this childs/manged them.
 */
 func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case *InsertMessage, *DeleteMessage, *FindMessage, *ChangeValueMessage:
-		context.Send(state.LeftElement.(*actor.PID), &msg)
+	case *DeleteMessage:
+		if state.IsLeft(msg.Key) {
+			context.Send(state.LeftElement.(*actor.PID), &msg)
+		} else {
+			context.Send(state.RightElement.(*actor.PID), &msg)
+		}
+	case *FindMessage:
+		if state.IsLeft(msg.Key) {
+			context.Send(state.LeftElement.(*actor.PID), &msg)
+		} else {
+			context.Send(state.RightElement.(*actor.PID), &msg)
+		}
+	case *InsertMessage:
+		if state.IsLeft(msg.Element.Key) {
+			context.Send(state.LeftElement.(*actor.PID), &msg)
+		} else {
+			context.Send(state.RightElement.(*actor.PID), &msg)
+		}
+	case *ChangeValueMessage:
+		if state.IsLeft(msg.Element.Key) {
+			context.Send(state.LeftElement.(*actor.PID), &msg)
+		} else {
+			context.Send(state.RightElement.(*actor.PID), &msg)
+		}
 	default:
 		fmt.Println(msg)
 	}

@@ -67,7 +67,7 @@ func sendFind(id int, token string, key int) (bool, error) {
 	if er == nil && se {
 		return true, nil
 	}
-	return false, fmt.Errorf("Cannot Find %d %s", key)
+	return false, fmt.Errorf("Cannot Find %d", key)
 }
 
 /*
@@ -166,7 +166,9 @@ func main() {
 		fmt.Println("Trie will not be deleted")
 	} else if *createTree != -1 {
 		fmt.Println("Before")
+		time.Sleep(5 * time.Second)
 		_, _ = sendCreateTrie(*createTree)
+		time.Sleep(5 * time.Second)
 		fmt.Println("hahahahah")
 	} else {
 		fmt.Println("Please make sure your given arguments fit the required pattern for more info enter .. -h")
@@ -186,17 +188,15 @@ Receive will receive the response from the Service. Either if the action connect
 */
 func (state *ClientRemoteActor) Receive(context actor.Context) {
 	fmt.Println(context.Message())
-	/*
-		switch msg := context.Message().(type) {
-			case *messages.Response:
-				state.count++
-				fmt.Println(state.count, msg)
-			case *actor.Stopped:
-				state.wg.Done()
-			default:
-				fmt.Println("Test")
-			}
-	*/
+	switch msg := context.Message().(type) {
+	case *messages.Response:
+		state.count++
+		fmt.Println(state.count, msg)
+	case *actor.Stopped:
+		state.wg.Done()
+	default:
+		fmt.Println("Test")
+	}
 }
 
 /*

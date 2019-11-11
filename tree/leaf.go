@@ -68,6 +68,10 @@ func (l *Leaf) getData() *map[int]string {
 }
 
 /*
+setData will set the Data-Field of a map to the given value.
+*/
+
+/*
 Change will change the value of a given key in the leaf
 */
 func (l *Leaf) Change(key int, value string) bool {
