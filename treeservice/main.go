@@ -109,6 +109,13 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 				SomeValue: "Wrong Combination of ID and Token",
 			})
 		}
+	case *tree.WantBasicNodeActors:
+		context.Respond(tree.GetBasicNodeActorsMessage{
+			LeftNode:        tree.CreateBasicNode(),
+			RightNode:       tree.CreateBasicNode(),
+			PreviousRequest: msg.getPreviousMessage(),
+			Size:            msg.getLimit(),
+		})
 	case *messages.ChangeRequest:
 		pa := tree.Pair{
 			Key:   int(msg.GetKey()),
