@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -141,14 +142,18 @@ func main() {
 	key := flag.Int("key", -1, "Set this flag in order to pass a key")
 	value := flag.String("value", "", "Set this flag in order to pass a value")
 
-	deleteTrie := flag.Bool("delete-trie", false, "If this flag is set your trie will be deleted ~ DANGEROUS")
+	deleteTrie := flag.Int("delete-trie", -1, "If this flag is set your trie will be deleted ~ DANGEROUS")
 
 	flag.Parse()
 	if *insertBool && *key != -1 && *value != "" {
+		fmt.Println("Start Insert")
+		time.Sleep(5 * time.Second)
 		_, _ = sendInsert(*ID, *token, tree.Pair{
 			Key:   *key,
 			Value: *value,
 		})
+		time.Sleep(5 * time.Second)
+		fmt.Println("Stop Insert")
 	} else if *changeBool && *key != -1 && *value != "" {
 		_, _ = sendChange(*ID, *token, tree.Pair{
 			Key:   *key,
@@ -156,20 +161,26 @@ func main() {
 		})
 	} else if *delete != -1 {
 		_, _ = sendDelete(*ID, *token, *key)
-	} else if *deleteTrie {
+	} else if *deleteTrie != -1 {
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Are sure you wanna delete the trie (y/n)")
+		fmt.Print("Are sure you wanna delete the trie (yes/no)")
 		text, _ := reader.ReadString('\n')
-		if text == "y" {
-			fmt.Println("Yes")
+		fmt.Println(text)
+		g := strings.HasPrefix(text, "yes")
+		fmt.Println(g)
+		if g {
+			fmt.Println("Trie will now be deleted")
+			_, _ = sendDeleteTrie(*ID, *token)
+			time.Sleep(5 * time.Second)
+		} else {
+			fmt.Println("Trie will not be deleted")
 		}
-		fmt.Println("Trie will not be deleted")
 	} else if *createTree != -1 {
-		fmt.Println("Before")
+		//fmt.Println("Before")
 		time.Sleep(5 * time.Second)
 		_, _ = sendCreateTrie(*createTree)
 		time.Sleep(5 * time.Second)
-		fmt.Println("hahahahah")
+		//fmt.Println("hahahahah")
 	} else {
 		fmt.Println("Please make sure your given arguments fit the required pattern for more info enter .. -h")
 	}
@@ -187,7 +198,7 @@ type ClientRemoteActor struct {
 Receive will receive the response from the Service. Either if the action connected to the message could be executed or not
 */
 func (state *ClientRemoteActor) Receive(context actor.Context) {
-	fmt.Println(context.Message())
+	//fmt.Println(context.Message())
 	switch msg := context.Message().(type) {
 	case *messages.Response:
 		state.count++

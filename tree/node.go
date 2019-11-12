@@ -135,6 +135,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 				Size:           state.getLimit(),
 			}, &msg.PIDRoot)
 		} else {
+			fmt.Println("In the insert")
 			context.Send(&msg.PID, &RespMessage{
 				Ans: result,
 			})
@@ -167,8 +168,8 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			Ans: result,
 		})
 	case *GetBasicNodesMessage:
-		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), msg)
-		if works {
+		//works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), msg)
+		if true { // hier eigentlich das ergebnis von works
 			context.Send(&msg.SSender, &RespMessage{
 				Ans: "Worked",
 			})
@@ -207,6 +208,7 @@ func (state *Nodeactor) insertSplittedMaps(left, right map[int]string) {
 expand will expand a trie from a given node by adding both sides with a new node
 and two leafs in order to get a half-balanced-Trie.
 */
+/*
 func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) bool {
 	var (
 		leftmap  map[int]string
@@ -226,6 +228,7 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) boo
 	return false
 }
 
+*/
 /*
 KnownNodeBehavior Method to set the Behavoir of a Node to a Knowing Node.
 So it will have to nodes as childs and know's about this childs/manged them.

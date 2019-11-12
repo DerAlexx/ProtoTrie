@@ -8,7 +8,6 @@ import (
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/log"
 	"github.com/AsynkronIT/protoactor-go/remote"
-	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/ob-vss-ws19/blatt-3-pwn/messages"
 	"github.com/ob-vss-ws19/blatt-3-pwn/tree"
 )
@@ -67,12 +66,17 @@ func contains(preID int) bool {
 	return contains
 }
 
+func containsByID(id ID) bool {
+	_, contains := RootNodes[id]
+	return contains
+}
+
 /*
 getRandomID will return a random id which is not allready in the map
 */
-func getRandomID() int {
+func getRandomID(l int) int {
 	for {
-		potantialID := rand.Intn(5815831813581)
+		potantialID := rand.Intn(l)
 		if !contains(potantialID) {
 			return potantialID
 		}
@@ -93,11 +97,18 @@ func addInToRootsMap(id ID, trie TrieContainer) {
 	RootNodes[id] = trie
 }
 
+func printMap() {
+	for k, v := range RootNodes {
+		fmt.Println(k, v)
+	}
+}
+
 /*
 DeleteTrie will delete a Trie
 */
 func deleteTrie(id ID, token Token) bool {
-	if MatchIDandToken(id, token) {
+	if MatchIDandToken(id, token) && containsByID(id) {
+		fmt.Println("hgahga")
 		delete(RootNodes, id)
 		return true
 	}
@@ -153,12 +164,14 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
+			fmt.Println("Trying to send the insert to the node")
 			context.Send(rootpid, tree.InsertMessage{
 				PID:        *context.Sender(),
 				Element:    pa,
 				PIDService: globalpid,
 				PIDRoot:    *rootpid,
 			})
+			fmt.Println(len(RootNodes))
 		} else {
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
@@ -181,11 +194,14 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		}
 	case *messages.CreateTreeRequest:
 		i, t, _ := AddNewTrie(int(msg.GetSize_()))
+		printMap()
+		fmt.Println(len(RootNodes))
 		context.Respond(&messages.Response{
 			SomeValue: fmt.Sprintf("Your ID: %d, Your Token: %s", int(i), string(t)),
 		})
 	case *messages.DeleteTreeRequest:
 		ret := deleteTrie(ID(msg.GetId()), Token(msg.GetToken()))
+		fmt.Println(len(RootNodes))
 		if ret {
 			context.Respond(&messages.Response{
 				SomeValue: "Success",
@@ -195,6 +211,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 				SomeValue: "Couldnt delete the tree",
 			})
 		}
+		fmt.Println(len(RootNodes))
 	case *tree.WantBasicNodeActorsMessage:
 		size := msg.Size
 
@@ -224,8 +241,8 @@ func NewServerRemoteActor() actor.Actor {
 AddNewTrie will add a rootNode into the map and return the ID and the token for this trie
 */
 func AddNewTrie(size int) (ID, Token, actor.PID) {
-	id := ID(getRandomID())
-	token := Token(hashcode.String(string(id)))
+	id := ID(getRandomID(1024))
+	token := Token(fmt.Sprintf("%d", getRandomID(50)))
 	props := actor.PropsFromProducer(func() actor.Actor {
 		return tree.CreateBasicNode(size)
 	})
