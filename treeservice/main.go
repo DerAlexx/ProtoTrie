@@ -109,13 +109,6 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 				SomeValue: "Wrong Combination of ID and Token",
 			})
 		}
-	case *tree.WantBasicNodeActors:
-		context.Respond(tree.GetBasicNodeActorsMessage{
-			LeftNode:        tree.CreateBasicNode(),
-			RightNode:       tree.CreateBasicNode(),
-			PreviousRequest: msg.getPreviousMessage(),
-			Size:            msg.getLimit(),
-		})
 	case *messages.ChangeRequest:
 		pa := tree.Pair{
 			Key:   int(msg.GetKey()),
@@ -202,7 +195,23 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 				SomeValue: msg.Ans.(string),
 			})
 		}
+	case *tree.WantBasicNodeActorsMessage:
+		size := msg.Size
+
+		context.Respond(tree.GetBasicNodesMessage{
+			LeftNode:  tree.CreateBasicNode(size),
+			RightNode: tree.CreateBasicNode(size),
+		})
+		//fallthrough
+	default:
+		/*
+			switch msg := context.Message().(type) {
+					case *tree.WantBasicNodeActorsMessage:
+						//msg.PMessageResult
+					}
+		*/
 	}
+
 }
 
 /*
