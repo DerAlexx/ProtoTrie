@@ -153,10 +153,12 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
-			context.RequestWithCustomSender(rootpid, tree.InsertMessage{
-				PID:     *context.Sender(),
-				Element: pa,
-			}, &globalpid)
+			context.Send(rootpid, tree.InsertMessage{
+				PID:        *context.Sender(),
+				Element:    pa,
+				PIDService: globalpid,
+				PIDRoot:    *rootpid,
+			})
 		} else {
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
@@ -195,24 +197,17 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		}
 	case *tree.WantBasicNodeActorsMessage:
 		size := msg.Size
-		id := ID(msg.GetId())
-		rootpid := getPID(id)
 
-		left := tree.CreateBasicNode(size)
-		propleft := actor.PropsFromProducer(left)
+		propleft := actor.PropsFromProducer(func() actor.Actor { return tree.CreateBasicNode(size) })
 		pidleft := *context.Spawn(propleft)
 
-		right := tree.CreateBasicNode(size)
-		propright := actor.PropsFromProducer(right)
+		propright := actor.PropsFromProducer(func() actor.Actor { return tree.CreateBasicNode(size) })
 		pidright := *context.Spawn(propright)
 
-		context.Send(rootpid, tree.GetBasicNodesMessage{
-
-			LeftNode:  left,
-			LeftPid:   pidleft,
-			RightNode: right,
-			RightPid:  pidright,
-			SSender:   clientpid,
+		context.Respond(tree.GetBasicNodesMessage{
+			LeftPid:  pidleft,
+			RightPid: pidright,
+			SSender:  clientpid,
 		})
 	}
 }

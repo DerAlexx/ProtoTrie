@@ -11,8 +11,10 @@ import (
 InsertMessage str
 */
 type InsertMessage struct {
-	PID     actor.PID
-	Element Pair
+	PID        actor.PID
+	Element    Pair
+	PIDService actor.PID
+	PIDRoot    actor.PID
 }
 
 /*
@@ -50,11 +52,9 @@ type RespMessage struct {
 GetBasicNodesMessage to get 2 BasicNodes
 */
 type GetBasicNodesMessage struct {
-	LeftNode  *Nodeactor
-	RightNode *Nodeactor
-	LeftPid   actor.PID
-	RightPid  actor.PID
-	SSender   actor.PID
+	LeftPid  actor.PID
+	RightPid actor.PID
+	SSender  actor.PID
 }
 
 /*
@@ -86,16 +86,9 @@ type Nodeactor struct {
 }
 
 /*
-getNewActors get the two new actors for the expantion
-*/
-func (msg *GetBasicNodesMessage) getNewActors() (*Nodeactor, *Nodeactor) {
-	return msg.LeftNode, msg.RightNode
-}
-
-/*
 CreateBasicNode will return a Basic node containing the parentnode and a left, right leaf.
 */
-func CreateBasicNode(limit int) *Nodeactor {
+func CreateBasicNode(limit int) actor.Actor {
 	return &Nodeactor{
 		//TODO Add a basic Behavior
 		Storable:     -1,
@@ -137,10 +130,10 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
 		}
 		if state.IsFull() {
-			context.Respond(&WantBasicNodeActorsMessage{
+			context.RequestWithCustomSender(&msg.PIDService, &WantBasicNodeActorsMessage{
 				PMessageResult: result,
 				Size:           state.getLimit(),
-			})
+			}, &msg.PIDRoot)
 		} else {
 			context.Send(&msg.PID, &RespMessage{
 				Ans: result,
@@ -223,11 +216,11 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) boo
 		leftmap = *left.getData()
 		rightmap = *right.getData()
 
-		state.LeftElement = msg.LeftNode
-		state.RightElement = msg.RightNode
+		state.LeftElement = msg.LeftNode   //TODO
+		state.RightElement = msg.RightNode //TODO
 
-		state.LeftElement.(*Nodeactor).insertSplittedMaps(sortMap(leftmap))
-		state.RightElement.(*Nodeactor).insertSplittedMaps(sortMap(rightmap))
+		state.LeftElement.(*Nodeactor).insertSplittedMaps(sortMap(leftmap))   //TODO
+		state.RightElement.(*Nodeactor).insertSplittedMaps(sortMap(rightmap)) //TODO
 		return true
 	}
 	return false
