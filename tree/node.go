@@ -52,7 +52,9 @@ GetBasicNodesMessage to get 2 BasicNodes
 type GetBasicNodesMessage struct {
 	LeftNode  *Nodeactor
 	RightNode *Nodeactor
-	//PreviousRequest interface{}
+	LeftPid   actor.PID
+	RightPid  actor.PID
+	SSender   actor.PID
 }
 
 /*
@@ -169,15 +171,64 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			Ans: result,
 		})
 	case *GetBasicNodesMessage:
-		// TODO Expand Trie
-		// TODO Switch Context
+		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), msg)
+		if works {
+			context.Send(&msg.SSender, &RespMessage{
+				Ans: "Worked",
+			})
+			state.Behavior.Become(state.KnownNodeBehavior)
+		} else {
+			context.Send(&msg.SSender, &RespMessage{
+				Ans: "Worked not",
+			})
+		}
 	}
 
 }
 
-// TODO Insert --> und daraufhin wechsel das verhaltens und Erweiterung
-// des baums und einpflege der
-// Daten in die neuen Leafs.
+/*
+NewSetBehaviorActor will be the setter for the new behavior.
+This will change in case a leaf is full and musst be splitted.
+*/
+func NewSetBehaviorActor() actor.Actor {
+	act := &Nodeactor{
+		Behavior: actor.NewBehavior(),
+	}
+	act.Behavior.Become(act.KnownNodeBehavior)
+
+	return act
+}
+
+/*
+Will insert into a Nodes Leafs Data
+*/
+func (state *Nodeactor) insertSplittedMaps(left, right map[int]string) {
+	state.LeftElement.(*Leaf).setData(&left)
+	state.RightElement.(*Leaf).setData(&right)
+}
+
+/*
+expand will expand a trie from a given node by adding both sides with a new node
+and two leafs in order to get a half-balanced-Trie.
+*/
+func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) bool {
+	var (
+		leftmap  map[int]string
+		rightmap map[int]string
+	)
+	if left != nil && right != nil && msg != nil {
+		leftmap = *left.getData()
+		rightmap = *right.getData()
+
+		state.LeftElement = msg.LeftNode
+		state.RightElement = msg.RightNode
+
+		state.LeftElement.(*Nodeactor).insertSplittedMaps(sortMap(leftmap))
+		state.RightElement.(*Nodeactor).insertSplittedMaps(sortMap(rightmap))
+		return true
+	}
+	return false
+}
 
 /*
 KnownNodeBehavior Method to set the Behavoir of a Node to a Knowing Node.
@@ -260,13 +311,6 @@ Receive will recieve some messages and direct them to the nodes
 */
 func (state *Nodeactor) Receive(context actor.Context) {
 	state.Behavior.Receive(context)
-}
-
-//TODO Comment
-func (state *Nodeactor) splitNode() []map[int]string {
-	leftmapone, leftmaptwo := sortMap(*state.LeftElement.(*Leaf).getData())
-	rightmapone, rightmaptwo := sortMap(*state.RightElement.(*Leaf).getData())
-	return []map[int]string{leftmapone, leftmaptwo, rightmapone, rightmaptwo}
 }
 
 //TODO Comment

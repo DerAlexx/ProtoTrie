@@ -9,6 +9,20 @@ type Leaf struct {
 }
 
 /*
+getData will return a pointer to the data of the given leaf
+*/
+func (l *Leaf) getData() *map[int]string {
+	return &l.Data
+}
+
+/*
+setData will set the data field on the given Data
+*/
+func (l *Leaf) setData(data *map[int]string) {
+	l.Data = *data
+}
+
+/*
 NewLeaf will return a new Leaf
 */
 func NewLeaf() Leaf {
@@ -58,13 +72,6 @@ func (l *Leaf) Erase(key int) bool {
 		return true
 	}
 	return false
-}
-
-/*
-getData will return a pointer to the data of the given leaf
-*/
-func (l *Leaf) getData() *map[int]string {
-	return &l.Data
 }
 
 /*
