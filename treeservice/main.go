@@ -45,6 +45,21 @@ RootNodes is a Map of rootnodes containing all roots --> Sorted by Key (Trie ID)
 var RootNodes map[ID]TrieContainer = make(map[ID]TrieContainer)
 
 /*
+clientpid is the PID of the Client Remote Actor
+*/
+var clientpid actor.PID
+
+/*
+globalpid is the PID of the Service Remote Actor
+*/
+var globalpid actor.PID
+
+/*
+context the root actor of the service
+*/
+var context actor.RootContext
+
+/*
 contains will check whether a key is in the map or not
 */
 func contains(preID int) bool {
@@ -100,10 +115,10 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		rootpid := getPID(id)
 		tok := Token(msg.GetToken())
 		if MatchIDandToken(id, tok) {
-			context.Send(rootpid, tree.DeleteMessage{
-				PID: globalpid,
+			context.RequestWithCustomSender(rootpid, tree.DeleteMessage{
+				PID: msg.Sender(),
 				Key: int(msg.GetKey()),
-			})
+			}, globalpid)
 		} else {
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
@@ -119,10 +134,10 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
-			context.Send(rootpid, tree.ChangeValueMessage{
-				PID:     globalpid,
+			context.RequestWithCustomSender(rootpid, tree.ChangeValueMessage{
+				PID:     msg.Sender(),
 				Element: pa,
-			})
+			}, globalpid)
 		} else {
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
@@ -136,12 +151,13 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		id := ID(msg.GetId())
 		rootpid := getPID(id)
 		tok := Token(msg.GetToken())
+		clientpid := msg.Sender()
 
 		if MatchIDandToken(id, tok) {
-			context.Send(rootpid, tree.InsertMessage{
-				PID:     globalpid,
+			context.RequestWithCustomSender(rootpid, tree.InsertMessage{
+				PID:     msg.Sender(),
 				Element: pa,
-			})
+			}, globalpid)
 		} else {
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
@@ -153,10 +169,10 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
-			context.Send(rootpid, tree.FindMessage{
-				PID: globalpid,
+			context.RequestWithCustomSender(rootpid, tree.FindMessage{
+				PID: msg.Sender(),
 				Key: int(msg.GetKey()),
-			})
+			}, globalpid)
 		} else {
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
@@ -168,7 +184,8 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 			SomeValue: fmt.Sprintf("Your ID: %d, Your Token: %s", int(i), string(t)),
 		})
 	case *messages.DeleteTreeRequest:
-		if true {
+		ret := deleteTrie(ID(msg.GetId()), Token(msg.GetToken()))
+		if ret {
 			context.Respond(&messages.Response{
 				SomeValue: "Success",
 			})
@@ -177,41 +194,28 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 				SomeValue: "Couldnt delete the tree",
 			})
 		}
-	case *tree.RespMessage:
-		switch val := msg.Ans.(type) {
-		case bool:
-			if val {
-				context.Respond(&messages.Response{
-					SomeValue: "Success",
-				})
-
-			} else {
-				context.Respond(&messages.Response{
-					SomeValue: "Operation couldnt be executed",
-				})
-			}
-		case string:
-			context.Respond(&messages.Response{
-				SomeValue: msg.Ans.(string),
-			})
-		}
 	case *tree.WantBasicNodeActorsMessage:
 		size := msg.Size
+		id := ID(msg.GetId())
+		rootpid := getPID(id)
 
-		context.Respond(tree.GetBasicNodesMessage{
-			LeftNode:  tree.CreateBasicNode(size),
-			RightNode: tree.CreateBasicNode(size),
+		context.Send(rootpid,tree.GetBasicNodesMessage{
+			*Nodeactor left := tree.CreateBasicNode(size),
+			propleft := actor.PropsFromProducer(left)
+			pidleft = *context.Spawn(propleft)
+			
+
+			*Nodeactor right := tree.CreateBasicNode(size),
+			propright := actor.PropsFromProducer(right)
+			pidright = *context.Spawn(propright)
+
+			LeftNode: left,
+			LeftPID: pidleft
+			RightNode: right,
+			RightPID: pidright,
+			Sender: clientpid
 		})
-		//fallthrough
-	default:
-		/*
-			switch msg := context.Message().(type) {
-					case *tree.WantBasicNodeActorsMessage:
-						//msg.PMessageResult
-					}
-		*/
 	}
-
 }
 
 /*
@@ -249,9 +253,6 @@ Will return true in case they do otherwise false.
 func MatchIDandToken(id ID, gtoken Token) bool {
 	return RootNodes[id].Token == gtoken
 }
-
-var globalpid actor.PID
-var context actor.RootContext
 
 /*
 starts an actorsystem that can be reached remotely

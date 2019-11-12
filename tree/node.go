@@ -73,7 +73,7 @@ type Pair struct {
 }
 
 /*
-Nodeactor is
+Nodeactor is a actor. Each Node has an actor
 */
 type Nodeactor struct {
 	Behavior     actor.Behavior
@@ -103,6 +103,9 @@ func CreateBasicNode(limit int) *Nodeactor {
 	}
 }
 
+/*
+getLimit will return the max size of a map
+*/
 func (state *Nodeactor) getLimit() int {
 	return state.Limit
 }
@@ -132,7 +135,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
 		}
 		if state.IsFull() {
-			context.Send(&msg.PID, &WantBasicNodeActorsMessage{
+			context.Respond(&WantBasicNodeActorsMessage{
 				PMessageResult: result,
 				Size:           state.getLimit(),
 			})
@@ -262,14 +265,20 @@ func (state *Nodeactor) Receive(context actor.Context) {
 	state.Behavior.Receive(context)
 }
 
-//TODO Comment
+/*
+splitNode returns 4 maps. Each Nodeactor has 2 Leafs. Each Leaf has a Map.
+If one Map is full both maps will be split in half.
+*/
 func (state *Nodeactor) splitNode() []map[int]string {
 	leftmapone, leftmaptwo := sortMap(*state.LeftElement.(*Leaf).getData())
 	rightmapone, rightmaptwo := sortMap(*state.RightElement.(*Leaf).getData())
 	return []map[int]string{leftmapone, leftmaptwo, rightmapone, rightmaptwo}
 }
 
-//TODO Comment
+/*
+sortMap sorts a given map, splits it in half and returns 2 maps.
+Each created map contains one half of the entries of the given map.
+*/
 func sortMap(m map[int]string) (r1 map[int]string, r2 map[int]string) {
 	keys := make([]int, 0, len(m))
 	pairs := make([]Pair, 0, len(m))
