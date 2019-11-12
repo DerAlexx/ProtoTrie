@@ -47,6 +47,24 @@ type RespMessage struct {
 }
 
 /*
+GetBasicNodesMessage to get 2 BasicNodes
+*/
+type GetBasicNodesMessage struct {
+	LeftNode  *Nodeactor
+	RightNode *Nodeactor
+	//PreviousRequest interface{}
+}
+
+/*
+WantBasicNodeActorsMessage is a request to send 2 basic nodes in order to
+expand the Trie
+*/
+type WantBasicNodeActorsMessage struct {
+	PMessageResult interface{}
+	Size           int
+}
+
+/*
 Pair is a representation of a Keys Value Combinations
 */
 type Pair struct {
@@ -62,18 +80,42 @@ type Nodeactor struct {
 	Storable     int
 	LeftElement  interface{}
 	RightElement interface{}
+	Limit        int
+}
+
+/*
+getNewActors get the two new actors for the expantion
+*/
+func (msg *GetBasicNodesMessage) getNewActors() (*Nodeactor, *Nodeactor) {
+	return msg.LeftNode, msg.RightNode
 }
 
 /*
 CreateBasicNode will return a Basic node containing the parentnode and a left, right leaf.
 */
-func CreateBasicNode() *Nodeactor {
+func CreateBasicNode(limit int) *Nodeactor {
 	return &Nodeactor{
 		//TODO Add a basic Behavior
 		Storable:     -1,
 		LeftElement:  NewLeaf(),
 		RightElement: NewLeaf(),
+		Limit:        limit,
 	}
+}
+
+func (state *Nodeactor) getLimit() int {
+	return state.Limit
+}
+
+/*
+IsFull will check whether on of the Leafs is full with pairs and in this case
+return true else false.
+*/
+func (state *Nodeactor) IsFull() bool {
+	if state.LeftElement.(*Leaf).Size() == state.getLimit() || state.RightElement.(*Leaf).Size() == state.getLimit() {
+		return true
+	}
+	return false
 }
 
 /*
@@ -89,9 +131,16 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		} else {
 			result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
 		}
-		context.Send(&msg.PID, &RespMessage{
-			Ans: result,
-		})
+		if state.IsFull() {
+			context.Send(&msg.PID, &WantBasicNodeActorsMessage{
+				PMessageResult: result,
+				Size:           state.getLimit(),
+			})
+		} else {
+			context.Send(&msg.PID, &RespMessage{
+				Ans: result,
+			})
+		}
 	case *DeleteMessage:
 		if state.IsLeft(msg.Key) {
 			result = state.LeftElement.(*Leaf).Erase(msg.Key)
@@ -119,9 +168,16 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		context.Send(&msg.PID, &RespMessage{
 			Ans: result,
 		})
+	case *GetBasicNodesMessage:
+		// TODO Expand Trie
+		// TODO Switch Context
 	}
 
 }
+
+// TODO Insert --> und daraufhin wechsel das verhaltens und Erweiterung
+// des baums und einpflege der
+// Daten in die neuen Leafs.
 
 /*
 KnownNodeBehavior Method to set the Behavoir of a Node to a Knowing Node.
@@ -239,9 +295,3 @@ func sortMap(m map[int]string) (r1 map[int]string, r2 map[int]string) {
 
 	return r1, r2
 }
-
-// TODO Insert --> und daraufhin wechsel das verhaltens und Erweiterung
-// des baums und einpflege der
-// Daten in die neuen Leafs.
-
-// TODO Split

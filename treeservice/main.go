@@ -213,14 +213,14 @@ func AddNewTrie(size int) (ID, Token, actor.PID) {
 	id := ID(getRandomID())
 	token := Token(hashcode.String(string(id)))
 	props := actor.PropsFromProducer(func() actor.Actor {
-		return tree.CreateBasicNode()
+		return tree.CreateBasicNode(size)
 	})
 	pid := context.Spawn(props)
 	addInToRootsMap(id, TrieContainer{ //TODO nach struct richten
 		Root:    props,
 		Token:   token,
 		Pid:     pid,
-		Size:    size,
+		Size:    size, //TODO refactor
 		Context: &context,
 	})
 	return id, token, *pid
