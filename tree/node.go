@@ -11,6 +11,12 @@ import (
 )
 
 /*
+TraverseMessage will be message to traverse the tree.
+*/
+type TraverseMessage struct {
+}
+
+/*
 InsertMessage str
 */
 type InsertMessage struct {
@@ -151,31 +157,41 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			time.Sleep(5 * time.Second)
 		}
 	case DeleteMessage:
+		fmt.Printf("[+] Given Key %d \n", msg.Key)
 		if state.IsLeft(msg.Key) {
+			//fmt.Printf("[+] %d \n", state.Limit)
+			//fmt.Printf("[+] Left %t \n", state.LeftElement)
 			result = state.LeftElement.(*Leaf).Erase(msg.Key)
+			//fmt.Printf("[+] %d \n", state.Limit)
 		} else {
+			//fmt.Printf("[+] %d \n", state.Limit)
+			//fmt.Printf("[+] Right %t \n", state.LeftElement)
 			result = state.RightElement.(*Leaf).Erase(msg.Key)
+			//fmt.Printf("[+] %d \n", state.Limit)
 		}
-		context.Send(&msg.PID, &RespMessage{
-			Ans: result,
+		fmt.Printf("[+] Contains Left: %t Contains Right: %t ", state.LeftElement.(*Leaf).Contains(msg.Key), state.RightElement.(*Leaf).Contains(msg.Key))
+		context.Send(&msg.PID, &messages.Response{
+			SomeValue: fmt.Sprintf("%t", result.(bool)),
 		})
-	case ChangeValueMessage:
+	case ChangeValueMessage: // Geht
 		if state.IsLeft(msg.Element.Key) {
+			fmt.Printf("[+] Before %s \n", state.LeftElement.(*Leaf).Find(msg.Element.Key))
 			result = state.LeftElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
+			fmt.Printf("[+] After %s \n", state.LeftElement.(*Leaf).Find(msg.Element.Key))
 		} else {
 			result = state.RightElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
 		}
-		context.Send(&msg.PID, &RespMessage{
-			Ans: result,
+		context.Send(&msg.PID, &messages.Response{
+			SomeValue: fmt.Sprintf("%t", result.(bool)),
 		})
-	case FindMessage:
+	case FindMessage: // Geht
 		if state.IsLeft(msg.Key) {
 			result = state.LeftElement.(*Leaf).Find(msg.Key)
 		} else {
 			result = state.RightElement.(*Leaf).Find(msg.Key)
 		}
-		context.Send(&msg.PID, &RespMessage{
-			Ans: result,
+		context.Send(&msg.PID, &messages.Response{
+			SomeValue: fmt.Sprintf("%s", result.(string)),
 		})
 	case GetBasicNodesMessage:
 		//works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), msg)
@@ -268,7 +284,7 @@ HasValueToDecide will check whether a given node has a value set to decide wheth
 left side or not. In case it does it will return true otherwise false.
 */
 func (state *Nodeactor) HasValueToDecide() (bool, int) {
-	if state.Storable != -1 {
+	if state.Storable > 0 {
 		return true, state.Storable
 	}
 	return false, -1
@@ -294,11 +310,13 @@ otherwise it will return false
 */
 func (state *Nodeactor) IsLeft(value int) bool {
 	has, is := state.HasValueToDecide()
+	fmt.Printf("is: %d, compare: %d, has: %t \n", is, value, has)
 	if !has {
+		fmt.Println("Ruf immer wieder den Setter auf")
 		state.SetStoreable(value)
 		return true
 	}
-	if is <= value {
+	if is >= value {
 		return true
 	}
 	return false
