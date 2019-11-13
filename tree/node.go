@@ -17,7 +17,8 @@ type TraverseMessage struct {
 }
 
 /*
-InsertMessage str
+InsertMessage will be a insertmessage with all information to insert something
+in the Trie
 */
 type InsertMessage struct {
 	PID        actor.PID
@@ -27,7 +28,7 @@ type InsertMessage struct {
 }
 
 /*
-DeleteMessage will
+DeleteMessage will be a message in order to delete a key from the given trie
 */
 type DeleteMessage struct {
 	PID actor.PID
@@ -35,7 +36,7 @@ type DeleteMessage struct {
 }
 
 /*
-ChangeValueMessage will
+ChangeValueMessage will be a message in order to change a pair in the map (just the value)
 */
 type ChangeValueMessage struct {
 	PID     actor.PID
@@ -128,13 +129,38 @@ func (state *Nodeactor) IsFull() bool {
 }
 
 /*
+unionLeafs will get two leafs and later on union the
+data fields of both maps.
+*/
+func unionLeafs(left, right *Leaf) map[int]string {
+	leftmap := *left.getData()
+	rightmap := right.getData()
+	for k, v := range *rightmap {
+		leftmap[k] = v
+	}
+	return leftmap
+}
+
+/*
+traverseChild will traverse the subtrie by running over the child and return a Map with all pairs.
+*/
+func (state *Nodeactor) traverseChild() map[int]string {
+	switch state.LeftElement.(type) {
+	case Leaf:
+		return unionLeafs(state.LeftElement.(*Leaf), state.RightElement.(*Leaf))
+	default:
+		return nil
+	}
+}
+
+/*
 StoringNodeBehavior Method to set the Behavior of a Node to a Storing Node.
 So it will have to leafs as childs and store information in this leafs.
 */
 func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	var result interface{}
 	switch msg := context.Message().(type) {
-	case InsertMessage:
+	case InsertMessage: //Geht
 		fmt.Println("Insert Service")
 		if state.IsLeft(msg.Element.Key) {
 			fmt.Println("Insert isLeft Service")
@@ -156,7 +182,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			})
 			time.Sleep(5 * time.Second)
 		}
-	case DeleteMessage:
+	case DeleteMessage: // Geht
 		fmt.Printf("[+] Given Key %d \n", msg.Key)
 		if state.IsLeft(msg.Key) {
 			//fmt.Printf("[+] %d \n", state.Limit)
@@ -194,8 +220,8 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			SomeValue: fmt.Sprintf("%s", result.(string)),
 		})
 	case GetBasicNodesMessage:
-		//works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), msg)
-		if true { // hier eigentlich das ergebnis von works
+		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), msg)
+		if works { // hier eigentlich das ergebnis von works
 			context.Send(&msg.SSender, &RespMessage{
 				Ans: "Worked",
 			})
@@ -205,6 +231,8 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 				Ans: "Worked not",
 			})
 		}
+	case TraverseMessage:
+		state.traverseChild() //TODO was wird hier zurück gesendet vlt ein Array aus Array's ?
 	default:
 		fmt.Println(reflect.TypeOf(msg))
 	}
@@ -223,7 +251,6 @@ func (state *Nodeactor) insertSplittedMaps(left, right map[int]string) {
 expand will expand a trie from a given node by adding both sides with a new node
 and two leafs in order to get a half-balanced-Trie.
 */
-/*
 func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) bool {
 	var (
 		leftmap  map[int]string
@@ -233,49 +260,52 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) boo
 		leftmap = *left.getData()
 		rightmap = *right.getData()
 
-		state.LeftElement = msg.LeftNode   //TODO
-		state.RightElement = msg.RightNode //TODO
+		state.LeftElement = msg.LeftPid
+		state.RightElement = msg.RightPid
 
-		state.LeftElement.(*Nodeactor).insertSplittedMaps(sortMap(leftmap))   //TODO
-		state.RightElement.(*Nodeactor).insertSplittedMaps(sortMap(rightmap)) //TODO
+		//TODO einfügen der Maps
+		state.LeftElement.(*Nodeactor).insertSplittedMaps(sortMap(leftmap))
+		state.RightElement.(*Nodeactor).insertSplittedMaps(sortMap(rightmap))
 		return true
 	}
 	return false
 }
 
-*/
 /*
 KnownNodeBehavior Method to set the Behavoir of a Node to a Knowing Node.
 So it will have to nodes as childs and know's about this childs/manged them.
 */
 func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case *DeleteMessage:
+	case DeleteMessage:
 		if state.IsLeft(msg.Key) {
 			context.Send(state.LeftElement.(*actor.PID), &msg)
 		} else {
 			context.Send(state.RightElement.(*actor.PID), &msg)
 		}
-	case *FindMessage:
+	case FindMessage:
 		if state.IsLeft(msg.Key) {
 			context.Send(state.LeftElement.(*actor.PID), &msg)
 		} else {
 			context.Send(state.RightElement.(*actor.PID), &msg)
 		}
-	case *InsertMessage:
+	case InsertMessage:
 		if state.IsLeft(msg.Element.Key) {
 			context.Send(state.LeftElement.(*actor.PID), &msg)
 		} else {
 			context.Send(state.RightElement.(*actor.PID), &msg)
 		}
-	case *ChangeValueMessage:
+	case ChangeValueMessage:
 		if state.IsLeft(msg.Element.Key) {
 			context.Send(state.LeftElement.(*actor.PID), &msg)
 		} else {
 			context.Send(state.RightElement.(*actor.PID), &msg)
 		}
+	case TraverseMessage:
+		context.Send(state.LeftElement.(*actor.PID), &msg)
+		context.Send(state.RightElement.(*actor.PID), &msg)
 	default:
-		fmt.Println(msg)
+		fmt.Println(reflect.TypeOf(msg))
 	}
 }
 
