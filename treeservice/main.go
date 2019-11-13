@@ -127,6 +127,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		rootpid := getPID(id)
 		tok := Token(msg.GetToken())
 		if MatchIDandToken(id, tok) {
+			fmt.Println("Sending DeleteMessage to RootNode")
 			context.RequestWithCustomSender(rootpid, tree.DeleteMessage{
 				PID: *context.Sender(),
 				Key: int(msg.GetKey()),
@@ -146,6 +147,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
+			fmt.Println("Sending ChangeValueMessage to RootNode")
 			context.RequestWithCustomSender(rootpid, tree.ChangeValueMessage{
 				PID:     *context.Sender(),
 				Element: pa,
@@ -165,14 +167,13 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
-			fmt.Println("Trying to send the insert to the node")
+			fmt.Println("Sending InsertMessage to RootNode")
 			context.Send(rootpid, tree.InsertMessage{
 				PID:        *context.Sender(),
 				Element:    pa,
 				PIDService: globalpid,
 				PIDRoot:    *rootpid,
 			})
-			fmt.Println(len(RootNodes))
 		} else {
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
@@ -184,6 +185,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
+			fmt.Println("Sending FindMessage to RootNode")
 			context.RequestWithCustomSender(rootpid, tree.FindMessage{
 				PID: *context.Sender(),
 				Key: int(msg.GetKey()),
@@ -196,13 +198,14 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 	case *messages.CreateTreeRequest:
 		i, t, _ := AddNewTrie(int(msg.GetSize_()))
 		printMap()
-		fmt.Println(len(RootNodes))
+		fmt.Printf("The size of the RootNode Map before creating the trie is %d", len(RootNodes))
 		context.Respond(&messages.Response{
 			SomeValue: fmt.Sprintf("Your ID: %d, Your Token: %s", int(i), string(t)),
 		})
+		fmt.Printf("The size of the RootNode Map after creating the trie is %d", len(RootNodes))
 	case *messages.DeleteTreeRequest:
 		ret := deleteTrie(ID(msg.GetId()), Token(msg.GetToken()))
-		fmt.Println(len(RootNodes))
+		fmt.Printf("The size of the RootNode Map before deleting the trie is %d", len(RootNodes))
 		if ret {
 			context.Respond(&messages.Response{
 				SomeValue: "Success",
@@ -212,7 +215,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 				SomeValue: "Couldnt delete the tree",
 			})
 		}
-		fmt.Println(len(RootNodes))
+		fmt.Printf("The size of the RootNode Map after deleting the trie is %d", len(RootNodes))
 	case *tree.WantBasicNodeActorsMessage:
 		size := msg.Size
 
@@ -222,6 +225,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		propright := actor.PropsFromProducer(func() actor.Actor { return tree.CreateBasicNode(size) })
 		pidright := *context.Spawn(propright)
 
+		fmt.Println("Sending GetBasicNodesMessage to RootNode")
 		context.Respond(tree.GetBasicNodesMessage{
 			LeftPid:  pidleft,
 			RightPid: pidright,

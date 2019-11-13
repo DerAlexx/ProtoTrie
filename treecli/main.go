@@ -27,6 +27,7 @@ func sendDelete(id int, token string, key int) (bool, error) {
 		Id:    int32(id),
 		Key:   int32(key),
 	}
+	fmt.Printf("CLI Sending DeleteRequest with id: %d key: %d to Service", id, key)
 	se, er := remotesend(message)
 	if er == nil && se {
 		return true, nil
@@ -46,6 +47,7 @@ func sendChange(id int, token string, pair tree.Pair) (bool, error) {
 		Key:   int32(pair.Key),
 		Value: pair.Value,
 	}
+	fmt.Printf("CLI Sending ChangeRequest with id: %d key: %d value: %s to Service", id, pair.Key, pair.Value)
 	se, er := remotesend(message)
 	if er == nil && se {
 		return true, nil
@@ -64,6 +66,7 @@ func sendFind(id int, token string, key int) (bool, error) {
 		Id:    int32(id),
 		Key:   int32(key),
 	}
+	fmt.Printf("CLI Sending FindRequest with id: %d key: %d to Service", id, key)
 	se, er := remotesend(message)
 	if er == nil && se {
 		return true, nil
@@ -83,12 +86,12 @@ func sendInsert(id int, token string, pair tree.Pair) (bool, error) {
 		Key:   int32(pair.Key),
 		Value: pair.Value,
 	}
-	fmt.Println("Sending CLI")
+	fmt.Printf("CLI Sending InsertRequest with id %d to Service, key: %d value: %s", id, pair.Key, pair.Value)
 	se, er := remotesend(message)
 	if er == nil && se {
 		return true, nil
 	}
-	return false, fmt.Errorf("Cannot Insert %d %s", pair.Key, pair.Value)
+	return false, fmt.Errorf("Cannot Insert key: %d with value %s", pair.Key, pair.Value)
 }
 
 /*
@@ -100,6 +103,7 @@ func sendCreateTrie(size int) (bool, error) {
 	message := &messages.CreateTreeRequest{
 		Size_: int32(size),
 	}
+	fmt.Printf("CLI Sending CreateTreeRequest with size %d to Service", size)
 	se, er := remotesend(message)
 	if er == nil && se {
 		return true, nil
@@ -117,11 +121,12 @@ func sendDeleteTrie(id int, token string) (bool, error) {
 		Token: token,
 		Id:    int32(id),
 	}
+	fmt.Printf("CLI Sending DeleteTreeRequest with id %d to Service", id)
 	se, er := remotesend(message)
 	if er == nil && se {
 		return true, nil
 	}
-	return false, fmt.Errorf("Cannot Change %d", id)
+	return false, fmt.Errorf("Cannot Delte Trie with id: %d", id)
 }
 
 /*
@@ -147,38 +152,46 @@ func main() {
 
 	flag.Parse()
 	if *insertBool && *key != -1 && *value != "" {
-		fmt.Println("Start Insert CLI")
+		fmt.Println("CLI Start Insert")
 		time.Sleep(5 * time.Second)
 		_, _ = sendInsert(*ID, *token, tree.Pair{
 			Key:   *key,
 			Value: *value,
 		})
+		fmt.Println("CLI Stop Insert")
 		time.Sleep(5 * time.Second)
-		fmt.Println("Stop Insert CLI")
 	} else if *changeBool && *key != -1 && *value != "" {
+		fmt.Println("CLI Start Change")
+		time.Sleep(5 * time.Second)
 		_, _ = sendChange(*ID, *token, tree.Pair{
 			Key:   *key,
 			Value: *value,
 		})
+		fmt.Println("CLI Stop Change")
+		time.Sleep(5 * time.Second)
 	} else if *delete != -1 {
+		fmt.Println("CLI Start Delete Entry")
+		time.Sleep(5 * time.Second)
 		_, _ = sendDelete(*ID, *token, *key)
+		fmt.Println("CLI Stop Delete Entry")
+		time.Sleep(5 * time.Second)
 	} else if *deleteTrie {
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Are sure you wanna delete the trie (yes/no)")
+		fmt.Print("Are sure you wannt to delete the trie (yes/no)")
 		text, _ := reader.ReadString('\n')
 		if strings.HasPrefix(text, "yes") {
-			fmt.Println("Trie will now be deleted")
+			fmt.Println("Trie will be deleted")
 			_, _ = sendDeleteTrie(*ID, *token)
 			time.Sleep(5 * time.Second)
 		} else {
-			fmt.Println("Trie will not be deleted")
+			fmt.Println("Trie wont be deleted")
 		}
 	} else if *createTree != -1 {
-		//fmt.Println("Before")
+		fmt.Println("CLI Start Create Tree")
 		time.Sleep(5 * time.Second)
 		_, _ = sendCreateTrie(*createTree)
+		fmt.Println("CLI Stop Create Tree")
 		time.Sleep(5 * time.Second)
-		//fmt.Println("hahahahah")
 	} else {
 		fmt.Println("Please make sure your given arguments fit the required pattern for more info enter .. -h")
 	}
@@ -196,7 +209,6 @@ type ClientRemoteActor struct {
 Receive will receive the response from the Service. Either if the action connected to the message could be executed or not
 */
 func (state *ClientRemoteActor) Receive(context actor.Context) {
-	//fmt.Println(context.Message())
 	switch msg := context.Message().(type) {
 	case *messages.Response:
 		state.count++
@@ -204,7 +216,7 @@ func (state *ClientRemoteActor) Receive(context actor.Context) {
 	case *actor.Stopped:
 		state.wg.Done()
 	default:
-		fmt.Println("Test")
+		fmt.Println("default Receive")
 	}
 }
 
