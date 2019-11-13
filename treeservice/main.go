@@ -66,6 +66,7 @@ func contains(preID int) bool {
 	return contains
 }
 
+//TODO Comment
 func containsByID(id ID) bool {
 	_, contains := RootNodes[id]
 	return contains
@@ -97,6 +98,7 @@ func addInToRootsMap(id ID, trie TrieContainer) {
 	RootNodes[id] = trie
 }
 
+//TODO Comment
 func printMap() {
 	for k, v := range RootNodes {
 		fmt.Println(k, v)
@@ -264,8 +266,7 @@ MatchIDandToken will check whether a given token and id match.
 Will return true in case they do otherwise false.
 */
 func MatchIDandToken(id ID, gtoken Token) bool {
-	v := RootNodes[id].Token
-	return v == gtoken
+	return RootNodes[id].Token == gtoken // Verändert schau commit #71
 }
 
 /*
