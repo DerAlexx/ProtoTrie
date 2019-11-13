@@ -226,7 +226,10 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 			RightPid: pidright,
 			SSender:  clientpid,
 		})
+	default:
+		fmt.Printf("default service")
 	}
+
 }
 
 /*

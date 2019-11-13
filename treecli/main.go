@@ -83,6 +83,7 @@ func sendInsert(id int, token string, pair tree.Pair) (bool, error) {
 		Key:   int32(pair.Key),
 		Value: pair.Value,
 	}
+	fmt.Println("Sending CLI")
 	se, er := remotesend(message)
 	if er == nil && se {
 		return true, nil
@@ -146,14 +147,14 @@ func main() {
 
 	flag.Parse()
 	if *insertBool && *key != -1 && *value != "" {
-		fmt.Println("Start Insert")
+		fmt.Println("Start Insert CLI")
 		time.Sleep(5 * time.Second)
 		_, _ = sendInsert(*ID, *token, tree.Pair{
 			Key:   *key,
 			Value: *value,
 		})
 		time.Sleep(5 * time.Second)
-		fmt.Println("Stop Insert")
+		fmt.Println("Stop Insert CLI")
 	} else if *changeBool && *key != -1 && *value != "" {
 		_, _ = sendChange(*ID, *token, tree.Pair{
 			Key:   *key,
