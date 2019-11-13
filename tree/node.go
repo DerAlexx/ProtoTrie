@@ -221,7 +221,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		})
 	case GetBasicNodesMessage:
 		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), &msg)
-		if works { // hier eigentlich das ergebnis von works
+		if works {
 			context.Send(&msg.SSender, &RespMessage{
 				Ans: "Worked",
 			})

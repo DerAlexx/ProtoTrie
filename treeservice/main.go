@@ -66,7 +66,9 @@ func contains(preID int) bool {
 	return contains
 }
 
-//TODO Comment
+/*
+containsByID will return the given RootNode by its ID
+*/
 func containsByID(id ID) bool {
 	_, contains := RootNodes[id]
 	return contains
@@ -98,7 +100,10 @@ func addInToRootsMap(id ID, trie TrieContainer) {
 	RootNodes[id] = trie
 }
 
-//TODO Comment
+/*
+printMap will print the RootNodes map on the server-side
+so dont use this on the client side.
+*/
 func printMap() {
 	for k, v := range RootNodes {
 		fmt.Println(k, v)
@@ -255,11 +260,11 @@ func AddNewTrie(size int) (ID, Token, actor.PID) {
 		return tree.CreateBasicNode(size)
 	})
 	pid := context.Spawn(props)
-	addInToRootsMap(id, TrieContainer{ //TODO nach struct richten
+	addInToRootsMap(id, TrieContainer{
 		Root:    props,
 		Token:   token,
 		Pid:     pid,
-		Size:    size, //TODO refactor
+		Size:    size,
 		Context: &context,
 	})
 	return id, token, *pid
