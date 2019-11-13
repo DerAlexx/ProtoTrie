@@ -25,8 +25,8 @@ func (l *Leaf) setData(data *map[int]string) {
 /*
 NewLeaf will return a new Leaf
 */
-func NewLeaf() Leaf {
-	return Leaf{
+func NewLeaf() *Leaf {
+	return &Leaf{
 		Data: make(map[int]string),
 	}
 }

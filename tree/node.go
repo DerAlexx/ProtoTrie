@@ -2,9 +2,12 @@ package tree
 
 import (
 	"fmt"
+	"reflect"
 	"sort"
+	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
+	"github.com/ob-vss-ws19/blatt-3-pwn/messages"
 )
 
 /*
@@ -89,13 +92,15 @@ type Nodeactor struct {
 CreateBasicNode will return a Basic node containing the parentnode and a left, right leaf.
 */
 func CreateBasicNode(limit int) actor.Actor {
-	return &Nodeactor{
-		//TODO Add a basic Behavior
+	act := &Nodeactor{
+		Behavior:     actor.NewBehavior(),
 		Storable:     -1,
 		LeftElement:  NewLeaf(),
 		RightElement: NewLeaf(),
 		Limit:        limit,
 	}
+	act.Behavior.Become(act.StoringNodeBehavior)
+	return act
 }
 
 /*
@@ -123,24 +128,29 @@ So it will have to leafs as childs and store information in this leafs.
 func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	var result interface{}
 	switch msg := context.Message().(type) {
-	case *InsertMessage:
+	case InsertMessage:
+		fmt.Println("Insert Service")
 		if state.IsLeft(msg.Element.Key) {
+			fmt.Println("Insert isLeft Service")
 			result = state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
 		} else {
+			fmt.Println("Insert isRight Service")
 			result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
 		}
 		if state.IsFull() {
+			fmt.Println("Insert isFull Service")
 			context.RequestWithCustomSender(&msg.PIDService, &WantBasicNodeActorsMessage{
 				PMessageResult: result,
 				Size:           state.getLimit(),
 			}, &msg.PIDRoot)
 		} else {
-			fmt.Println("In the insert")
-			context.Send(&msg.PID, &RespMessage{
-				Ans: result,
+			fmt.Println("Return insert Service")
+			context.Send(&msg.PID, &messages.Response{
+				SomeValue: fmt.Sprintf("%t", result.(bool)),
 			})
+			time.Sleep(5 * time.Second)
 		}
-	case *DeleteMessage:
+	case DeleteMessage:
 		if state.IsLeft(msg.Key) {
 			result = state.LeftElement.(*Leaf).Erase(msg.Key)
 		} else {
@@ -149,7 +159,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		context.Send(&msg.PID, &RespMessage{
 			Ans: result,
 		})
-	case *ChangeValueMessage:
+	case ChangeValueMessage:
 		if state.IsLeft(msg.Element.Key) {
 			result = state.LeftElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
 		} else {
@@ -158,7 +168,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		context.Send(&msg.PID, &RespMessage{
 			Ans: result,
 		})
-	case *FindMessage:
+	case FindMessage:
 		if state.IsLeft(msg.Key) {
 			result = state.LeftElement.(*Leaf).Find(msg.Key)
 		} else {
@@ -167,7 +177,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		context.Send(&msg.PID, &RespMessage{
 			Ans: result,
 		})
-	case *GetBasicNodesMessage:
+	case GetBasicNodesMessage:
 		//works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), msg)
 		if true { // hier eigentlich das ergebnis von works
 			context.Send(&msg.SSender, &RespMessage{
@@ -179,21 +189,10 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 				Ans: "Worked not",
 			})
 		}
+	default:
+		fmt.Println(reflect.TypeOf(msg))
 	}
 
-}
-
-/*
-NewSetBehaviorActor will be the setter for the new behavior.
-This will change in case a leaf is full and musst be splitted.
-*/
-func NewSetBehaviorActor() actor.Actor {
-	act := &Nodeactor{
-		Behavior: actor.NewBehavior(),
-	}
-	act.Behavior.Become(act.KnownNodeBehavior)
-
-	return act
 }
 
 /*
