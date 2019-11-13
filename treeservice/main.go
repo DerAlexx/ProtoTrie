@@ -108,7 +108,6 @@ DeleteTrie will delete a Trie
 */
 func deleteTrie(id ID, token Token) bool {
 	if MatchIDandToken(id, token) && containsByID(id) {
-		fmt.Println("hgahga")
 		delete(RootNodes, id)
 		return true
 	}
@@ -262,7 +261,8 @@ MatchIDandToken will check whether a given token and id match.
 Will return true in case they do otherwise false.
 */
 func MatchIDandToken(id ID, gtoken Token) bool {
-	return RootNodes[id].Token == gtoken
+	v := RootNodes[id].Token
+	return v == gtoken
 }
 
 /*

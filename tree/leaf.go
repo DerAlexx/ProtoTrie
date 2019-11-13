@@ -46,7 +46,7 @@ in the map.
 @return will return a bool depending on the insert, if it can insert the pair
 it will return true otherwise false
 */
-func (l *Leaf) Insert(key int, value string) bool {
+func (l Leaf) Insert(key int, value string) bool {
 	if !l.Contains(key) {
 		l.Data[key] = value
 		return true

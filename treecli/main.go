@@ -142,7 +142,7 @@ func main() {
 	key := flag.Int("key", -1, "Set this flag in order to pass a key")
 	value := flag.String("value", "", "Set this flag in order to pass a value")
 
-	deleteTrie := flag.Int("delete-trie", -1, "If this flag is set your trie will be deleted ~ DANGEROUS")
+	deleteTrie := flag.Bool("delete-trie", false, "If this flag is set your trie will be deleted ~ DANGEROUS")
 
 	flag.Parse()
 	if *insertBool && *key != -1 && *value != "" {
@@ -161,14 +161,11 @@ func main() {
 		})
 	} else if *delete != -1 {
 		_, _ = sendDelete(*ID, *token, *key)
-	} else if *deleteTrie != -1 {
+	} else if *deleteTrie {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Are sure you wanna delete the trie (yes/no)")
 		text, _ := reader.ReadString('\n')
-		fmt.Println(text)
-		g := strings.HasPrefix(text, "yes")
-		fmt.Println(g)
-		if g {
+		if strings.HasPrefix(text, "yes") {
 			fmt.Println("Trie will now be deleted")
 			_, _ = sendDeleteTrie(*ID, *token)
 			time.Sleep(5 * time.Second)
