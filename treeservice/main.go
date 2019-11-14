@@ -172,6 +172,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		tok := Token(msg.GetToken())
 
 		if MatchIDandToken(id, tok) {
+			clientpid = *context.Sender()
 			fmt.Println("Sending InsertMessage to RootNode")
 			context.Send(rootpid, tree.InsertMessage{
 				PID:        *context.Sender(),
@@ -223,23 +224,22 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		fmt.Printf("The size of the RootNode Map after deleting the trie is %d", len(RootNodes))
 	case *tree.WantBasicNodeActorsMessage:
 		size := msg.Size
-
+		Ncontext := actor.EmptyRootContext
 		propleft := actor.PropsFromProducer(func() actor.Actor { return tree.CreateBasicNode(size) })
-		pidleft := *context.Spawn(propleft)
+		pidleft := *Ncontext.Spawn(propleft)
 
 		propright := actor.PropsFromProducer(func() actor.Actor { return tree.CreateBasicNode(size) })
-		pidright := *context.Spawn(propright)
-
+		pidright := *Ncontext.Spawn(propright)
+		fmt.Println(pidleft, pidright)
 		fmt.Println("Sending GetBasicNodesMessage to Node")
 		context.Respond(tree.GetBasicNodesMessage{
-			LeftPid:  pidleft,
-			RightPid: pidright,
-			SSender:  clientpid,
+			LeftPid:  &pidleft,
+			RightPid: &pidright,
+			SSender:  &clientpid,
 		})
 	default:
 		fmt.Printf("default service")
 	}
-
 }
 
 /*
@@ -292,6 +292,7 @@ func main() {
 
 	prop := actor.PropsFromProducer(NewServerRemoteActor)
 	globalpid = *context.Spawn(prop)
+	fmt.Println(globalpid)
 	// register a name for our local actor so that it can be spawned remotely
 	remote.Register("hello", prop)
 }

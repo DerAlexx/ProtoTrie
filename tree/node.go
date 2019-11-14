@@ -62,9 +62,9 @@ type RespMessage struct {
 GetBasicNodesMessage to get 2 BasicNodes
 */
 type GetBasicNodesMessage struct {
-	LeftPid  actor.PID
-	RightPid actor.PID
-	SSender  actor.PID
+	LeftPid  *actor.PID
+	RightPid *actor.PID
+	SSender  *actor.PID
 }
 
 /*
@@ -176,6 +176,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			} else {
 				fmt.Println("Insert isRight Service")
 				result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
+				fmt.Printf("[+] %t", state.LeftElement.(*Leaf).Contains(msg.Element.Key))
 			}
 			fmt.Println("Return insert Service")
 			context.Send(&msg.PID, &messages.Response{
@@ -225,14 +226,14 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		})
 	case GetBasicNodesMessage:
 		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), &msg)
-		fmt.Println(&msg.SSender)
+		fmt.Println(msg.SSender, msg.LeftPid, msg.RightPid)
 		if works {
-			context.Send(&msg.SSender, &messages.Response{
+			context.Send(msg.SSender, &messages.Response{
 				SomeValue: "Worked",
 			})
 			state.Behavior.Become(state.KnownNodeBehavior)
 		} else {
-			context.Send(&msg.SSender, &messages.Response{
+			context.Send(msg.SSender, &messages.Response{
 				SomeValue: fmt.Sprintf("Worked not"),
 			})
 		}
