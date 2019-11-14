@@ -11,7 +11,14 @@ import (
 )
 
 /*
-InsertMessage str
+TraverseMessage will be message to traverse the tree.
+*/
+type TraverseMessage struct {
+}
+
+/*
+InsertMessage will be a insertmessage with all information to insert something
+in the Trie
 */
 type InsertMessage struct {
 	PID        actor.PID
@@ -21,7 +28,7 @@ type InsertMessage struct {
 }
 
 /*
-DeleteMessage will
+DeleteMessage will be a message in order to delete a key from the given trie
 */
 type DeleteMessage struct {
 	PID actor.PID
@@ -29,7 +36,7 @@ type DeleteMessage struct {
 }
 
 /*
-ChangeValueMessage will
+ChangeValueMessage will be a message in order to change a pair in the map (just the value)
 */
 type ChangeValueMessage struct {
 	PID     actor.PID
@@ -122,64 +129,99 @@ func (state *Nodeactor) IsFull() bool {
 }
 
 /*
+unionLeafs will get two leafs and later on union the
+data fields of both maps.
+*/
+func unionLeafs(left, right *Leaf) map[int]string {
+	leftmap := *left.getData()
+	rightmap := right.getData()
+	for k, v := range *rightmap {
+		leftmap[k] = v
+	}
+	return leftmap
+}
+
+/*
+traverseChild will traverse the subtrie by running over the child and return a Map with all pairs.
+*/
+func (state *Nodeactor) traverseChild() map[int]string {
+	switch state.LeftElement.(type) {
+	case Leaf:
+		return unionLeafs(state.LeftElement.(*Leaf), state.RightElement.(*Leaf))
+	default:
+		return nil
+	}
+}
+
+/*
 StoringNodeBehavior Method to set the Behavior of a Node to a Storing Node.
 So it will have to leafs as childs and store information in this leafs.
 */
 func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	var result interface{}
 	switch msg := context.Message().(type) {
-	case InsertMessage:
+	case InsertMessage: //Geht
 		fmt.Println("Insert Service")
-		if state.IsLeft(msg.Element.Key) {
-			fmt.Println("Insert isLeft Service")
-			result = state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
-		} else {
-			fmt.Println("Insert isRight Service")
-			result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
-		}
 		if state.IsFull() {
 			fmt.Println("Insert isFull Service")
-			context.RequestWithCustomSender(&msg.PIDService, &WantBasicNodeActorsMessage{
-				PMessageResult: result,
+			context.Send(&msg.PIDService, &WantBasicNodeActorsMessage{
+				PMessageResult: &msg,
 				Size:           state.getLimit(),
-			}, &msg.PIDRoot)
+			})
 		} else {
+			if state.IsLeft(msg.Element.Key) {
+				fmt.Println("Insert isLeft Service")
+				result = state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
+			} else {
+				fmt.Println("Insert isRight Service")
+				result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
+			}
 			fmt.Println("Return insert Service")
 			context.Send(&msg.PID, &messages.Response{
 				SomeValue: fmt.Sprintf("%t", result.(bool)),
 			})
 			time.Sleep(5 * time.Second)
 		}
-	case DeleteMessage:
+	case DeleteMessage: // Geht
+		fmt.Printf("[+] Given Key %d \n", msg.Key)
 		if state.IsLeft(msg.Key) {
+			//fmt.Printf("[+] %d \n", state.Limit)
+			//fmt.Printf("[+] Left %t \n", state.LeftElement)
 			result = state.LeftElement.(*Leaf).Erase(msg.Key)
+			//fmt.Printf("[+] %d \n", state.Limit)
 		} else {
+			//fmt.Printf("[+] %d \n", state.Limit)
+			//fmt.Printf("[+] Right %t \n", state.LeftElement)
 			result = state.RightElement.(*Leaf).Erase(msg.Key)
+			//fmt.Printf("[+] %d \n", state.Limit)
 		}
-		context.Send(&msg.PID, &RespMessage{
-			Ans: result,
+		fmt.Printf("[+] Contains Left: %t Contains Right: %t ", state.LeftElement.(*Leaf).Contains(msg.Key), state.RightElement.(*Leaf).Contains(msg.Key))
+		context.Send(&msg.PID, &messages.Response{
+			SomeValue: fmt.Sprintf("%t", result.(bool)),
 		})
-	case ChangeValueMessage:
+	case ChangeValueMessage: // Geht
 		if state.IsLeft(msg.Element.Key) {
+			fmt.Printf("[+] Before %s \n", state.LeftElement.(*Leaf).Find(msg.Element.Key))
 			result = state.LeftElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
+			fmt.Printf("[+] After %s \n", state.LeftElement.(*Leaf).Find(msg.Element.Key))
 		} else {
 			result = state.RightElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
 		}
-		context.Send(&msg.PID, &RespMessage{
-			Ans: result,
+		context.Send(&msg.PID, &messages.Response{
+			SomeValue: fmt.Sprintf("%t", result.(bool)),
 		})
-	case FindMessage:
+	case FindMessage: // Geht
 		if state.IsLeft(msg.Key) {
 			result = state.LeftElement.(*Leaf).Find(msg.Key)
 		} else {
 			result = state.RightElement.(*Leaf).Find(msg.Key)
 		}
-		context.Send(&msg.PID, &RespMessage{
-			Ans: result,
+		context.Send(&msg.PID, &messages.Response{
+			SomeValue: fmt.Sprintf("%s", result.(string)),
 		})
-	case GetBasicNodesMessage:
-		//works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), msg)
-		if true { // hier eigentlich das ergebnis von works
+	case GetBasicNodesMessage: //Geht
+		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), &msg)
+		if works {
 			context.Send(&msg.SSender, &RespMessage{
 				Ans: "Worked",
 			})
@@ -189,6 +231,8 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 				Ans: "Worked not",
 			})
 		}
+	case TraverseMessage:
+		state.traverseChild() //TODO was wird hier zurück gesendet vlt ein Array aus Array's ?
 	default:
 		fmt.Println(reflect.TypeOf(msg))
 	}
@@ -207,7 +251,6 @@ func (state *Nodeactor) insertSplittedMaps(left, right map[int]string) {
 expand will expand a trie from a given node by adding both sides with a new node
 and two leafs in order to get a half-balanced-Trie.
 */
-/*
 func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) bool {
 	var (
 		leftmap  map[int]string
@@ -217,49 +260,52 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) boo
 		leftmap = *left.getData()
 		rightmap = *right.getData()
 
-		state.LeftElement = msg.LeftNode   //TODO
-		state.RightElement = msg.RightNode //TODO
+		state.LeftElement = msg.LeftPid
+		state.RightElement = msg.RightPid
 
-		state.LeftElement.(*Nodeactor).insertSplittedMaps(sortMap(leftmap))   //TODO
-		state.RightElement.(*Nodeactor).insertSplittedMaps(sortMap(rightmap)) //TODO
+		//TODO einfügen der Maps
+		state.LeftElement.(*Nodeactor).insertSplittedMaps(sortMap(leftmap))
+		state.RightElement.(*Nodeactor).insertSplittedMaps(sortMap(rightmap))
 		return true
 	}
 	return false
 }
 
-*/
 /*
 KnownNodeBehavior Method to set the Behavoir of a Node to a Knowing Node.
 So it will have to nodes as childs and know's about this childs/manged them.
 */
 func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 	switch msg := context.Message().(type) {
-	case *DeleteMessage:
+	case DeleteMessage:
 		if state.IsLeft(msg.Key) {
 			context.Send(state.LeftElement.(*actor.PID), &msg)
 		} else {
 			context.Send(state.RightElement.(*actor.PID), &msg)
 		}
-	case *FindMessage:
+	case FindMessage:
 		if state.IsLeft(msg.Key) {
 			context.Send(state.LeftElement.(*actor.PID), &msg)
 		} else {
 			context.Send(state.RightElement.(*actor.PID), &msg)
 		}
-	case *InsertMessage:
+	case InsertMessage:
 		if state.IsLeft(msg.Element.Key) {
 			context.Send(state.LeftElement.(*actor.PID), &msg)
 		} else {
 			context.Send(state.RightElement.(*actor.PID), &msg)
 		}
-	case *ChangeValueMessage:
+	case ChangeValueMessage:
 		if state.IsLeft(msg.Element.Key) {
 			context.Send(state.LeftElement.(*actor.PID), &msg)
 		} else {
 			context.Send(state.RightElement.(*actor.PID), &msg)
 		}
+	case TraverseMessage:
+		context.Send(state.LeftElement.(*actor.PID), &msg)
+		context.Send(state.RightElement.(*actor.PID), &msg)
 	default:
-		fmt.Println(msg)
+		fmt.Println(reflect.TypeOf(msg))
 	}
 }
 
@@ -268,7 +314,7 @@ HasValueToDecide will check whether a given node has a value set to decide wheth
 left side or not. In case it does it will return true otherwise false.
 */
 func (state *Nodeactor) HasValueToDecide() (bool, int) {
-	if state.Storable != -1 {
+	if state.Storable > 0 {
 		return true, state.Storable
 	}
 	return false, -1
@@ -294,11 +340,13 @@ otherwise it will return false
 */
 func (state *Nodeactor) IsLeft(value int) bool {
 	has, is := state.HasValueToDecide()
+	fmt.Printf("is: %d, compare: %d, has: %t \n", is, value, has)
 	if !has {
+		fmt.Println("Ruf immer wieder den Setter auf")
 		state.SetStoreable(value)
 		return true
 	}
-	if is <= value {
+	if is >= value {
 		return true
 	}
 	return false
@@ -315,7 +363,7 @@ func (state *Nodeactor) Receive(context actor.Context) {
 sortMap sorts a given map, splits it in half and returns 2 maps.
 Each created map contains one half of the entries of the given map.
 */
-func sortMap(m map[int]string) (r1 map[int]string, r2 map[int]string) {
+func sortMap(m map[int]string) (map[int]string, map[int]string) {
 	keys := make([]int, 0, len(m))
 	pairs := make([]Pair, 0, len(m))
 	for k := range m {
@@ -329,6 +377,10 @@ func sortMap(m map[int]string) (r1 map[int]string, r2 map[int]string) {
 		})
 	}
 	mapsizeleft := len(pairs) / 2
+
+	var (
+		r1, r2 map[int]string
+	)
 
 	for i := 0; i < mapsizeleft; i++ {
 		r1[pairs[i].Key] = pairs[i].Value

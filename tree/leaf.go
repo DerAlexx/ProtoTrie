@@ -1,5 +1,7 @@
 package tree
 
+import "fmt"
+
 /*
 Leaf is the representation of the LEAF of a Node at
 the end of a treebranch
@@ -68,15 +70,13 @@ Erase will erase a given key from
 */
 func (l *Leaf) Erase(key int) bool {
 	if l.Contains(key) {
+		fmt.Println("Key is in this map")
 		delete(l.Data, key)
 		return true
 	}
+	fmt.Println("Key is not in this map")
 	return false
 }
-
-/*
-setData will set the Data-Field of a map to the given value.
-*/
 
 /*
 Change will change the value of a given key in the leaf
