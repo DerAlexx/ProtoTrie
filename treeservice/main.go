@@ -230,7 +230,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		propright := actor.PropsFromProducer(func() actor.Actor { return tree.CreateBasicNode(size) })
 		pidright := *context.Spawn(propright)
 
-		fmt.Println("Sending GetBasicNodesMessage to RootNode")
+		fmt.Println("Sending GetBasicNodesMessage to Node")
 		context.Respond(tree.GetBasicNodesMessage{
 			LeftPid:  pidleft,
 			RightPid: pidright,

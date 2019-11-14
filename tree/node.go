@@ -164,14 +164,15 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		fmt.Println("Insert Service")
 		if state.IsFull() {
 			fmt.Println("Insert isFull Service")
-			context.Send(&msg.PIDService, &WantBasicNodeActorsMessage{
+			context.RequestWithCustomSender(&msg.PIDService, &WantBasicNodeActorsMessage{
 				PMessageResult: &msg,
 				Size:           state.getLimit(),
-			})
+			}, context.Self())
 		} else {
 			if state.IsLeft(msg.Element.Key) {
 				fmt.Println("Insert isLeft Service")
 				result = state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
+				fmt.Printf("[+] %t", state.RightElement.(*Leaf).Contains(msg.Element.Key))
 			} else {
 				fmt.Println("Insert isRight Service")
 				result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
@@ -216,19 +217,23 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		} else {
 			result = state.RightElement.(*Leaf).Find(msg.Key)
 		}
+		if result == "" {
+			result = fmt.Sprintf("There is no Entry in the Database with id %d", msg.Key)
+		}
 		context.Send(&msg.PID, &messages.Response{
 			SomeValue: fmt.Sprintf("%s", result.(string)),
 		})
-	case GetBasicNodesMessage: //Geht
+	case GetBasicNodesMessage:
 		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), &msg)
+		fmt.Println(&msg.SSender)
 		if works {
-			context.Send(&msg.SSender, &RespMessage{
-				Ans: "Worked",
+			context.Send(&msg.SSender, &messages.Response{
+				SomeValue: "Worked",
 			})
 			state.Behavior.Become(state.KnownNodeBehavior)
 		} else {
-			context.Send(&msg.SSender, &RespMessage{
-				Ans: "Worked not",
+			context.Send(&msg.SSender, &messages.Response{
+				SomeValue: fmt.Sprintf("Worked not"),
 			})
 		}
 	case TraverseMessage:
@@ -262,10 +267,10 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) boo
 
 		state.LeftElement = msg.LeftPid
 		state.RightElement = msg.RightPid
-
+		fmt.Println(leftmap, rightmap)
 		//TODO einfügen der Maps
-		state.LeftElement.(*Nodeactor).insertSplittedMaps(sortMap(leftmap))
-		state.RightElement.(*Nodeactor).insertSplittedMaps(sortMap(rightmap))
+		//state.LeftElement.(*Nodeactor).insertSplittedMaps(sortMap(leftmap))
+		//state.RightElement.(*Nodeactor).insertSplittedMaps(sortMap(rightmap))
 		return true
 	}
 	return false
