@@ -239,11 +239,11 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		})
 		fmt.Println("Sending new InsertMessage to RootNode")
 		time.Sleep(5 * time.Second)
-		context.Send(msg.PMessageResult.get, tree.InsertMessage{
-			PID:        msg.PMessageResult.PID,
-			Element:    msg.PMessageResult.PIDRoot,
-			PIDService: msg.PMessageResult.PIDRoot,
-			PIDRoot:    msg.PMessageResult.PIDRoot,
+		context.Send(&msg.PMessageResult.(*tree.InsertMessage).PIDRoot, tree.InsertMessage{
+			PID:        msg.PMessageResult.(*tree.InsertMessage).PID,
+			Element:    msg.PMessageResult.(*tree.InsertMessage).Element,
+			PIDService: msg.PMessageResult.(*tree.InsertMessage).PIDService,
+			PIDRoot:    msg.PMessageResult.(*tree.InsertMessage).PIDRoot,
 		})
 
 	default:
