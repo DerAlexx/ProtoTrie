@@ -43,6 +43,15 @@ func (l *Leaf) Contains(key int) bool {
 }
 
 /*
+insertMap will insert a given map into a leaf's datafield
+*/
+func (l Leaf) insertMap(m map[int]string) {
+	for k, v := range m {
+		l.Insert(k, v)
+	}
+}
+
+/*
 Insert will insert a pair into the map incase it is not already
 in the map.
 @return will return a bool depending on the insert, if it can insert the pair

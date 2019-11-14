@@ -62,9 +62,9 @@ type RespMessage struct {
 GetBasicNodesMessage to get 2 BasicNodes
 */
 type GetBasicNodesMessage struct {
-	LeftPid  actor.PID
-	RightPid actor.PID
-	SSender  actor.PID
+	LeftPid  *actor.PID
+	RightPid *actor.PID
+	SSender  *actor.PID
 }
 
 /*
@@ -74,6 +74,14 @@ expand the Trie
 type WantBasicNodeActorsMessage struct {
 	PMessageResult interface{}
 	Size           int
+}
+
+/*
+ExpandMessage will be a message containing a MAP
+*/
+type ExpandMessage struct {
+	LeftMap  map[int]string
+	RightMap map[int]string
 }
 
 /*
@@ -176,6 +184,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			} else {
 				fmt.Println("Insert isRight Service")
 				result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
+				fmt.Printf("[+] %t", state.LeftElement.(*Leaf).Contains(msg.Element.Key))
 			}
 			fmt.Println("Return insert Service")
 			context.Send(&msg.PID, &messages.Response{
@@ -224,39 +233,36 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			SomeValue: fmt.Sprintf("%s", result.(string)),
 		})
 	case GetBasicNodesMessage:
-		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), &msg)
-		fmt.Println(&msg.SSender)
+		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), &msg, context)
+		fmt.Println(msg.SSender, msg.LeftPid, msg.RightPid)
 		if works {
-			context.Send(&msg.SSender, &messages.Response{
+			context.Send(msg.SSender, &messages.Response{
 				SomeValue: "Worked",
 			})
 			state.Behavior.Become(state.KnownNodeBehavior)
 		} else {
-			context.Send(&msg.SSender, &messages.Response{
+			context.Send(msg.SSender, &messages.Response{
 				SomeValue: fmt.Sprintf("Worked not"),
 			})
 		}
+	case ExpandMessage:
+		state.LeftElement.(*Leaf).insertMap(msg.LeftMap)
+		state.RightElement.(*Leaf).insertMap(msg.RightMap)
 	case TraverseMessage:
 		state.traverseChild() //TODO was wird hier zurück gesendet vlt ein Array aus Array's ?
 	default:
+		fmt.Println(">>>>>>>>>>>>>>>>>>")
 		fmt.Println(reflect.TypeOf(msg))
+		fmt.Println(">>>>>>>>>>>>>>>>>>")
 	}
 
-}
-
-/*
-Will insert into a Nodes Leafs Data
-*/
-func (state *Nodeactor) insertSplittedMaps(left, right map[int]string) {
-	state.LeftElement.(*Leaf).setData(&left)
-	state.RightElement.(*Leaf).setData(&right)
 }
 
 /*
 expand will expand a trie from a given node by adding both sides with a new node
 and two leafs in order to get a half-balanced-Trie.
 */
-func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) bool {
+func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, context actor.Context) bool {
 	var (
 		leftmap  map[int]string
 		rightmap map[int]string
@@ -267,10 +273,20 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage) boo
 
 		state.LeftElement = msg.LeftPid
 		state.RightElement = msg.RightPid
-		fmt.Println(leftmap, rightmap)
-		//TODO einfügen der Maps
-		//state.LeftElement.(*Nodeactor).insertSplittedMaps(sortMap(leftmap))
-		//state.RightElement.(*Nodeactor).insertSplittedMaps(sortMap(rightmap))
+
+		ll, lr := sortMap(leftmap)
+		rl, rr := sortMap(rightmap)
+
+		context.Send(msg.LeftPid, ExpandMessage{
+			LeftMap:  ll,
+			RightMap: lr,
+		})
+
+		context.Send(msg.RightPid, ExpandMessage{
+			LeftMap:  rl,
+			RightMap: rr,
+		})
+
 		return true
 	}
 	return false
@@ -284,31 +300,31 @@ func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case DeleteMessage:
 		if state.IsLeft(msg.Key) {
-			context.Send(state.LeftElement.(*actor.PID), &msg)
+			context.Send(state.LeftElement.(*actor.PID), msg)
 		} else {
-			context.Send(state.RightElement.(*actor.PID), &msg)
+			context.Send(state.RightElement.(*actor.PID), msg)
 		}
 	case FindMessage:
 		if state.IsLeft(msg.Key) {
-			context.Send(state.LeftElement.(*actor.PID), &msg)
+			context.Send(state.LeftElement.(*actor.PID), msg)
 		} else {
-			context.Send(state.RightElement.(*actor.PID), &msg)
+			context.Send(state.RightElement.(*actor.PID), msg)
 		}
 	case InsertMessage:
 		if state.IsLeft(msg.Element.Key) {
-			context.Send(state.LeftElement.(*actor.PID), &msg)
+			context.Send(state.LeftElement.(*actor.PID), msg)
 		} else {
-			context.Send(state.RightElement.(*actor.PID), &msg)
+			context.Send(state.RightElement.(*actor.PID), msg)
 		}
 	case ChangeValueMessage:
 		if state.IsLeft(msg.Element.Key) {
-			context.Send(state.LeftElement.(*actor.PID), &msg)
+			context.Send(state.LeftElement.(*actor.PID), msg)
 		} else {
-			context.Send(state.RightElement.(*actor.PID), &msg)
+			context.Send(state.RightElement.(*actor.PID), msg)
 		}
 	case TraverseMessage:
-		context.Send(state.LeftElement.(*actor.PID), &msg)
-		context.Send(state.RightElement.(*actor.PID), &msg)
+		context.Send(state.LeftElement.(*actor.PID), msg)
+		context.Send(state.RightElement.(*actor.PID), msg)
 	default:
 		fmt.Println(reflect.TypeOf(msg))
 	}
