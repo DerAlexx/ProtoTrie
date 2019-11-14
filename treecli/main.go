@@ -152,6 +152,8 @@ func main() {
 
 	deleteTrie := flag.Bool("delete-trie", false, "If this flag is set your trie will be deleted ~ DANGEROUS")
 
+	//TODO Travserse Flag
+
 	flag.Parse()
 	if *insertBool && *key != -1 && *value != "" {
 		fmt.Println("CLI Start Insert")
