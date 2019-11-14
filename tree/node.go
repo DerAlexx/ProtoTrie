@@ -289,7 +289,7 @@ func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 		} else {
 			context.Send(state.RightElement.(*actor.PID), &msg)
 		}
-	case FindMessage:
+	case *FindMessage:
 		if state.IsLeft(msg.Key) {
 			context.Send(state.LeftElement.(*actor.PID), &msg)
 		} else {
