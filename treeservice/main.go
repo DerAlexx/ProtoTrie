@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sync"
+	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/AsynkronIT/protoactor-go/log"
@@ -231,6 +232,15 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 			RightPid: pidright,
 			SSender:  clientpid,
 		})
+		fmt.Println("Sending new InsertMessage to RootNode")
+		time.Sleep(5 * time.Second)
+		context.Send(msg.PMessageResult.get, tree.InsertMessage{
+			PID:        msg.PMessageResult.PID,
+			Element:    msg.PMessageResult.PIDRoot,
+			PIDService: msg.PMessageResult.PIDRoot,
+			PIDRoot:    msg.PMessageResult.PIDRoot,
+		})
+
 	default:
 		fmt.Printf("default service")
 	}

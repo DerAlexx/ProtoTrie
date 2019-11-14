@@ -144,6 +144,7 @@ func main() {
 	insertBool := flag.Bool("insert", false, "Set this flag with the Flag key and value in order to insert a pair into your trie")
 	changeBool := flag.Bool("change", false, "Set this flag with the Flag key and value in order to change a pair into your trie")
 	delete := flag.Int("delete", -1, "Enter a key to delete, the function will remove an entire entry from the trie decided by the key.")
+	find := flag.Int("find", -1, "Enter a key to find an entry") //new
 
 	key := flag.Int("key", -1, "Set this flag in order to pass a key")
 	value := flag.String("value", "", "Set this flag in order to pass a value")
@@ -169,6 +170,12 @@ func main() {
 		})
 		fmt.Println("CLI Stop Change")
 		time.Sleep(5 * time.Second)
+	} else if *find != -1 { //new
+		fmt.Println("CLI Start Finding Entry")
+		time.Sleep(5 * time.Second)
+		_, _ = sendFind(*ID, *token, *key)
+		fmt.Println("CLI Stop Delete Entry")
+		time.Sleep(5 * time.Second) //new
 	} else if *delete != -1 {
 		fmt.Println("CLI Start Delete Entry")
 		time.Sleep(5 * time.Second)
