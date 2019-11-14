@@ -162,20 +162,20 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case InsertMessage: //Geht
 		fmt.Println("Insert Service")
-		if state.IsLeft(msg.Element.Key) {
-			fmt.Println("Insert isLeft Service")
-			result = state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
-		} else {
-			fmt.Println("Insert isRight Service")
-			result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
-		}
 		if state.IsFull() {
 			fmt.Println("Insert isFull Service")
-			context.RequestWithCustomSender(&msg.PIDService, &WantBasicNodeActorsMessage{
-				PMessageResult: result,
+			context.Send(&msg.PIDService, &WantBasicNodeActorsMessage{
+				PMessageResult: &msg,
 				Size:           state.getLimit(),
-			}, &msg.PIDRoot)
+			})
 		} else {
+			if state.IsLeft(msg.Element.Key) {
+				fmt.Println("Insert isLeft Service")
+				result = state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
+			} else {
+				fmt.Println("Insert isRight Service")
+				result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
+			}
 			fmt.Println("Return insert Service")
 			context.Send(&msg.PID, &messages.Response{
 				SomeValue: fmt.Sprintf("%t", result.(bool)),
@@ -219,7 +219,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		context.Send(&msg.PID, &messages.Response{
 			SomeValue: fmt.Sprintf("%s", result.(string)),
 		})
-	case GetBasicNodesMessage:
+	case GetBasicNodesMessage: //Geht
 		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), &msg)
 		if works {
 			context.Send(&msg.SSender, &RespMessage{
@@ -363,7 +363,7 @@ func (state *Nodeactor) Receive(context actor.Context) {
 sortMap sorts a given map, splits it in half and returns 2 maps.
 Each created map contains one half of the entries of the given map.
 */
-func sortMap(m map[int]string) (r1 map[int]string, r2 map[int]string) {
+func sortMap(m map[int]string) (map[int]string, map[int]string) {
 	keys := make([]int, 0, len(m))
 	pairs := make([]Pair, 0, len(m))
 	for k := range m {
@@ -377,6 +377,10 @@ func sortMap(m map[int]string) (r1 map[int]string, r2 map[int]string) {
 		})
 	}
 	mapsizeleft := len(pairs) / 2
+
+	var (
+		r1, r2 map[int]string
+	)
 
 	for i := 0; i < mapsizeleft; i++ {
 		r1[pairs[i].Key] = pairs[i].Value
