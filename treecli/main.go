@@ -144,6 +144,7 @@ func main() {
 	insertBool := flag.Bool("insert", false, "Set this flag with the Flag key and value in order to insert a pair into your trie")
 	changeBool := flag.Bool("change", false, "Set this flag with the Flag key and value in order to change a pair into your trie")
 	delete := flag.Int("delete", -1, "Enter a key to delete, the function will remove an entire entry from the trie decided by the key.")
+
 	findEntry := flag.Int("find", -1, "Set this flag with the Flag key and value in order to change a pair into your trie")
 
 	key := flag.Int("key", -1, "Set this flag in order to pass a key")
