@@ -130,11 +130,17 @@ func (state *Nodeactor) getLimit() int {
 IsFull will check whether on of the Leafs is full with pairs and in this case
 return true else false.
 */
-func (state *Nodeactor) IsFull() bool {
-	if state.LeftElement.(*Leaf).Size() == state.getLimit() || state.RightElement.(*Leaf).Size() == state.getLimit() {
+func (state *Nodeactor) IsFull(isleft bool) bool {
+	k := state.LeftElement.(*Leaf).Size() == state.getLimit()
+	j := state.RightElement.(*Leaf).Size() == state.getLimit()
+	fmt.Printf("ISFULL >>>>> %t %t %t \n", k, j, isleft)
+	if k && isleft {
 		return true
+	} else if j && !isleft {
+		return true
+	} else {
+		return false
 	}
-	return false
 }
 
 /*
@@ -178,7 +184,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case InsertMessage:
 		fmt.Println("Insert Service")
-		if state.IsFull() {
+		if state.IsFull(state.IsLeft(msg.Element.Key)) {
 			fmt.Println("Insert isFull Service")
 			context.RequestWithCustomSender(&msg.PIDService, &WantBasicNodeActorsMessage{
 				PMessageResult: &msg,
