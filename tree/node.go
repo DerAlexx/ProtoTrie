@@ -13,6 +13,7 @@ import (
 TraverseMessage will be message to traverse the tree.
 */
 type TraverseMessage struct {
+	PID actor.PID
 }
 
 /*
@@ -254,7 +255,12 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		state.LeftElement.(*Leaf).insertMap(msg.LeftMap)
 		state.RightElement.(*Leaf).insertMap(msg.RightMap)
 	case TraverseMessage:
-		state.traverseChild() //TODO was wird hier zurück gesendet vlt ein Array aus Array's ?
+		ret := state.traverseChild() //TODO was wird hier zurück gesendet vlt ein Array aus Array's ?
+		if ret != nil {
+			context.Send(msg.PID, &messages.TraverseResponse{
+				Arr: ret,
+			})
+		}
 	default:
 		fmt.Println(reflect.TypeOf(msg))
 	}

@@ -143,6 +143,20 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 				SomeValue: "Wrong Combination of ID and Token",
 			})
 		}
+	case *messages.TraverseRequest:
+		id := ID(int(msg.GetId()))
+		rootpid := getPID(id)
+		tok := Token(msg.GetToken())
+		if MatchIDandToken(id, tok) {
+			fmt.Println("Sending TraverseMessage to RootNode")
+			context.Send(rootpid, tree.TraverseMessage{
+				PID: *context.Sender(),
+			})
+		} else {
+			context.Respond(&messages.Response{
+				SomeValue: "Wrong Combination of ID and Token",
+			})
+		}
 	case *messages.ChangeRequest:
 		pa := tree.Pair{
 			Key:   int(msg.GetKey()),

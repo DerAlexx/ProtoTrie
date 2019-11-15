@@ -16,6 +16,12 @@ message FindRequest {
     int32 Key = 3;
 }
 
+// TraverseRequest contains the information to traverse over a tree. from client to service
+message TraverseRequest {
+    string Token = 1;
+    int32 Id = 2;
+}
+
 // ChangeRequest contains the information to change an entry in the tree. from client to service
 message ChangeRequest {
     string Token = 1;
@@ -46,4 +52,9 @@ message DeleteTreeRequest {
 // Response contains the response from the service
 message Response {
     string SomeValue = 1;
+}
+
+// Response contains the response from the service
+message TraverseResponse {
+    [] Arr = 1;
 }
