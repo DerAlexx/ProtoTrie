@@ -272,7 +272,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			for k, v := range ret {
 				map32[int32(k)] = v
 			}
-			context.Send(&msg.PID, messages.TraverseResponse{
+			context.Send(&msg.PID, &messages.TraverseResponse{
 				Arr: map32,
 			})
 			/*context.Send(&msg.PID, messages.Response{

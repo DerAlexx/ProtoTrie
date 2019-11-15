@@ -248,6 +248,9 @@ func (state *ClientRemoteActor) Receive(context actor.Context) {
 	case *messages.Response:
 		state.count++
 		fmt.Println(state.count, msg)
+	case *messages.TraverseResponse:
+		state.count++
+		fmt.Println(state.count, msg)
 	case *actor.Stopped:
 		state.wg.Done()
 	default:
