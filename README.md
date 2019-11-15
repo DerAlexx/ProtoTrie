@@ -60,3 +60,38 @@ genaue Bezeichnung in die Consolenausgabe des Jenkins-Jobs.
 Wenn Sie die Imagenamen oben (`treeservice` und `treecli`) durch die Namen aus der
 Registry ersetzen, können Sie Ihre Lösung mit den selben Kommandos wie oben beschrieben,
 ausprobieren.
+
+## CLI commands
+
+-   Starten des Treeservice mit `go run ./treeservice`
+-   Treeclient:
+    -   Erstellen eines neuen Baums: `go run ./treecli -create trie 10`
+    -   Einfügen eines Wertes: `go run ./treecli -insert -key 8 -value="hello" -id 545 -token 37`
+    -   Löschen eines Wertes: `go run ./treecli -delete -key -id 545 token 37`
+    -   Traversieren: `go run ./treecli -traverse -id 545 token 37`
+    -   Suchen: `go run ./treecli -find -key 8 -id 545 token 37`
+    -   Baum löschen (muss mit yes bestätigt werden): `go run ./treecli -deleteTree -id 545 token 37`
+-  Stimmt der Token mit die ID nicht überein, wird eine Fehlermeldung ausgegeben.
+
+## Flags CLI:
+```
+  -id int
+        ID des Baums (default 0)
+  -delete
+        löscht einen key und value aus dem Baum (default -1)
+  -delete-trie bool
+        löscht den ganzen Baum (default false)
+  -insert bool
+        fügt einen key und value in den Baum ein (default false)
+  -key int
+        Key der für Insert/Search/Delete benötigt wird (default -1)
+  -create-trie int
+        legt einen neuen Baum mit der angegebenen Größe an und gibt die id und den token aus (default -1)
+  -find int
+        sucht den value zu einem key (default -1)
+  -token string
+        Token des Baums (default "")
+  -traverse bool
+        gibt den Inhalt des Baums aus (default false)
+  -value string
+        value der im Baum abgelegt wird/ist (default "")
