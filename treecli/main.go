@@ -130,6 +130,24 @@ func sendDeleteTrie(id int, token string) (bool, error) {
 }
 
 /*
+inserts information in a message which is necessary to traverse over a tree
+calls the function that sends the message to the service
+returns true if that was successful
+*/
+func sendTraverse(id int, token string) (bool, error) {
+	message := &messages.TraverseRequest{
+		Token: token,
+		Id:    int32(id),
+	}
+	fmt.Printf("CLI Sending TraverseRequest with id %d to Service", id)
+	se, er := remotesend(message)
+	if er == nil && se {
+		return true, nil
+	}
+	return false, fmt.Errorf("Cannot traverse over Trie with id: %d", id)
+}
+
+/*
 starts the cli. The cli uses command line parameters
  #create a tree
  #delete a tree
@@ -144,6 +162,7 @@ func main() {
 	insertBool := flag.Bool("insert", false, "Set this flag with the Flag key and value in order to insert a pair into your trie")
 	changeBool := flag.Bool("change", false, "Set this flag with the Flag key and value in order to change a pair into your trie")
 	delete := flag.Int("delete", -1, "Enter a key to delete, the function will remove an entire entry from the trie decided by the key.")
+	traverseBool := flag.Bool("traverse", false, "Set this flag with the Flag key and value in order to traverse the trie")
 
 	findEntry := flag.Int("find", -1, "Set this flag with the Flag key and value in order to change a pair into your trie")
 
@@ -178,6 +197,12 @@ func main() {
 			Value: *value,
 		})
 		fmt.Println("CLI Stop Change")
+		time.Sleep(5 * time.Second)
+	} else if *traverseBool {
+		fmt.Println("CLI Start Traverse")
+		time.Sleep(5 * time.Second)
+		_, _ = sendTraverse(*ID, *token)
+		fmt.Println("CLI Stop Traverse")
 		time.Sleep(5 * time.Second)
 	} else if *delete != -1 {
 		fmt.Println("CLI Start Delete Entry")
