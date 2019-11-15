@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
-	"time"
 
 	"github.com/AsynkronIT/protoactor-go/actor"
 	"github.com/ob-vss-ws19/blatt-3-pwn/messages"
@@ -80,8 +79,9 @@ type WantBasicNodeActorsMessage struct {
 ExpandMessage will be a message containing a MAP
 */
 type ExpandMessage struct {
-	LeftMap  map[int]string
-	RightMap map[int]string
+	NewStorable int
+	LeftMap     map[int]string
+	RightMap    map[int]string
 }
 
 /*
@@ -168,7 +168,7 @@ So it will have to leafs as childs and store information in this leafs.
 func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	var result interface{}
 	switch msg := context.Message().(type) {
-	case InsertMessage: //Geht
+	case InsertMessage:
 		fmt.Println("Insert Service")
 		if state.IsFull() {
 			fmt.Println("Insert isFull Service")
@@ -190,9 +190,8 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			context.Send(&msg.PID, &messages.Response{
 				SomeValue: fmt.Sprintf("%t", result.(bool)),
 			})
-			time.Sleep(5 * time.Second)
 		}
-	case DeleteMessage: // Geht
+	case DeleteMessage:
 		fmt.Printf("[+] Given Key %d \n", msg.Key)
 		if state.IsLeft(msg.Key) {
 			//fmt.Printf("[+] %d \n", state.Limit)
@@ -209,7 +208,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		context.Send(&msg.PID, &messages.Response{
 			SomeValue: fmt.Sprintf("%t", result.(bool)),
 		})
-	case ChangeValueMessage: // Geht
+	case ChangeValueMessage:
 		if state.IsLeft(msg.Element.Key) {
 			fmt.Printf("[+] Before %s \n", state.LeftElement.(*Leaf).Find(msg.Element.Key))
 			result = state.LeftElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
@@ -220,11 +219,27 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		context.Send(&msg.PID, &messages.Response{
 			SomeValue: fmt.Sprintf("%t", result.(bool)),
 		})
-	case FindMessage: // Geht
+	case FindMessage:
 		if state.IsLeft(msg.Key) {
 			result = state.LeftElement.(*Leaf).Find(msg.Key)
+			fmt.Println("left")
+			for k := range *state.LeftElement.(*Leaf).getData() {
+				print(k)
+			}
+			fmt.Println("\nright")
+			for k := range *state.RightElement.(*Leaf).getData() {
+				print(k)
+			}
 		} else {
 			result = state.RightElement.(*Leaf).Find(msg.Key)
+			fmt.Println("left")
+			for k := range *state.LeftElement.(*Leaf).getData() {
+				print(k)
+			}
+			fmt.Println("\nright")
+			for k := range *state.RightElement.(*Leaf).getData() {
+				print(k)
+			}
 		}
 		if result == "" {
 			result = fmt.Sprintf("There is no Entry in the Database with id %d", msg.Key)
@@ -233,29 +248,33 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			SomeValue: fmt.Sprintf("%s", result.(string)),
 		})
 	case GetBasicNodesMessage:
-		works := state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), &msg, context)
-		fmt.Println(msg.SSender, msg.LeftPid, msg.RightPid)
-		if works {
-			context.Send(msg.SSender, &messages.Response{
-				SomeValue: "Worked",
-			})
-			state.Behavior.Become(state.KnownNodeBehavior)
-		} else {
-			context.Send(msg.SSender, &messages.Response{
-				SomeValue: fmt.Sprintf("Worked not"),
-			})
-		}
+		state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), &msg, context)
 	case ExpandMessage:
+		state.SetStoreable(msg.NewStorable)
 		state.LeftElement.(*Leaf).insertMap(msg.LeftMap)
 		state.RightElement.(*Leaf).insertMap(msg.RightMap)
 	case TraverseMessage:
 		state.traverseChild() //TODO was wird hier zurück gesendet vlt ein Array aus Array's ?
 	default:
-		fmt.Println(">>>>>>>>>>>>>>>>>>")
 		fmt.Println(reflect.TypeOf(msg))
-		fmt.Println(">>>>>>>>>>>>>>>>>>")
 	}
 
+}
+
+/*
+findBiggestKey will return the biggest key in a map
+*/
+func findBiggestKey(m map[int]string) int {
+	if len(m) > 0 {
+		biggestKey := 0
+		for key := range m {
+			if key > biggestKey {
+				key = biggestKey
+			}
+		}
+		return biggestKey
+	}
+	return 0
 }
 
 /*
@@ -278,13 +297,15 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 		rl, rr := sortMap(rightmap)
 
 		context.Send(msg.LeftPid, ExpandMessage{
-			LeftMap:  ll,
-			RightMap: lr,
+			NewStorable: findBiggestKey(ll),
+			LeftMap:     ll,
+			RightMap:    lr,
 		})
 
 		context.Send(msg.RightPid, ExpandMessage{
-			LeftMap:  rl,
-			RightMap: rr,
+			NewStorable: findBiggestKey(rl),
+			LeftMap:     rl,
+			RightMap:    rr,
 		})
 
 		return true
