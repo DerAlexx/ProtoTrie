@@ -257,8 +257,12 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	case TraverseMessage:
 		ret := state.traverseChild() //TODO was wird hier zurück gesendet vlt ein Array aus Array's ?
 		if ret != nil {
+			var map32 map[int32]string
+			for i := 0; i < len(ret); i++ {
+				map32[int32(i)] = ret[i]
+			}
 			context.Send(&msg.PID, messages.TraverseResponse{
-				Arr: ret,
+				Arr: map32,
 			})
 		}
 	default:
