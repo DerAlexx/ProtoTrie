@@ -141,12 +141,15 @@ func (state *Nodeactor) IsFull() bool {
 unionLeafs will get two leafs and later on union the
 data fields of both maps.
 */
-func unionLeafs(left, right *Leaf) map[int]string {
+func unionLeafs(left, right *Leaf) map[int]string { //????
 	leftmap := *left.getData()
 	rightmap := right.getData()
+	fmt.Println(leftmap)
+	fmt.Println(rightmap)
 	for k, v := range *rightmap {
 		leftmap[k] = v
 	}
+	fmt.Println(leftmap)
 	return leftmap
 }
 
@@ -156,6 +159,10 @@ traverseChild will traverse the subtrie by running over the child and return a M
 func (state *Nodeactor) traverseChild() map[int]string {
 	switch state.LeftElement.(type) {
 	case Leaf:
+		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Node traverse child <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+		return unionLeafs(state.LeftElement.(*Leaf), state.RightElement.(*Leaf))
+	case *Leaf:
+		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Node traverse child 2<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 		return unionLeafs(state.LeftElement.(*Leaf), state.RightElement.(*Leaf))
 	default:
 		return nil
@@ -255,15 +262,22 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		state.LeftElement.(*Leaf).insertMap(msg.LeftMap)
 		state.RightElement.(*Leaf).insertMap(msg.RightMap)
 	case TraverseMessage:
-		ret := state.traverseChild() //TODO was wird hier zurück gesendet vlt ein Array aus Array's ?
+		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Node Traverse before method <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+		ret := state.traverseChild() //Fehler
+		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Node Traverse after method <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+		fmt.Println(ret)
 		if ret != nil {
-			var map32 map[int32]string
-			for i := 0; i < len(ret); i++ {
-				map32[int32(i)] = ret[i]
+			fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Node Traverse before send <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
+			map32 := make(map[int32]string, len(ret))
+			for k, v := range ret {
+				map32[int32(k)] = v
 			}
 			context.Send(&msg.PID, messages.TraverseResponse{
 				Arr: map32,
 			})
+			/*context.Send(&msg.PID, messages.Response{
+				SomeValue: "map32",
+			})*/
 		}
 	default:
 		fmt.Println(reflect.TypeOf(msg))
@@ -296,6 +310,7 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 		leftmap  map[int]string
 		rightmap map[int]string
 	)
+	fmt.Println(*left, *right, *msg)
 	if left != nil && right != nil && msg != nil {
 		leftmap = *left.getData()
 		rightmap = *right.getData()
@@ -306,6 +321,23 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 		ll, lr := sortMap(leftmap)
 		rl, rr := sortMap(rightmap)
 
+		fmt.Println("Exapnd Start")
+		fmt.Println(len(ll), len(lr), len(rl), len(rr))
+		for k, v := range ll {
+			fmt.Println(k, v)
+		}
+		for k, v := range lr {
+			fmt.Println(k, v)
+		}
+
+		for k, v := range rl {
+			fmt.Println(k, v)
+		}
+
+		for k, v := range rr {
+			fmt.Println(k, v)
+		}
+		fmt.Println("Exapnd End")
 		context.Send(msg.LeftPid, ExpandMessage{
 			NewStorable: findBiggestKey(ll),
 			LeftMap:     ll,
@@ -416,8 +448,8 @@ sortMap sorts a given map, splits it in half and returns 2 maps.
 Each created map contains one half of the entries of the given map.
 */
 func sortMap(m map[int]string) (map[int]string, map[int]string) {
-	keys := make([]int, 0, len(m))
-	pairs := make([]Pair, 0, len(m))
+	keys := make([]int, len(m))
+	pairs := make([]Pair, len(m))
 	for k := range m {
 		keys = append(keys, k)
 	}
