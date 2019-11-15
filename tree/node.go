@@ -258,7 +258,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		ret := state.traverseChild() //TODO was wird hier zurück gesendet vlt ein Array aus Array's ?
 		if ret != nil {
 			context.Send(&msg.PID, messages.TraverseResponse{
-				Arr: ret,
+				//Arr: ret,
 			})
 		}
 	default:
@@ -292,6 +292,7 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 		leftmap  map[int]string
 		rightmap map[int]string
 	)
+	fmt.Println(*left, *right, *msg)
 	if left != nil && right != nil && msg != nil {
 		leftmap = *left.getData()
 		rightmap = *right.getData()
@@ -302,6 +303,23 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 		ll, lr := sortMap(leftmap)
 		rl, rr := sortMap(rightmap)
 
+		fmt.Println("Exapnd Start")
+		fmt.Println(len(ll), len(lr), len(rl), len(rr))
+		for k, v := range ll {
+			fmt.Println(k, v)
+		}
+		for k, v := range lr {
+			fmt.Println(k, v)
+		}
+
+		for k, v := range rl {
+			fmt.Println(k, v)
+		}
+
+		for k, v := range rr {
+			fmt.Println(k, v)
+		}
+		fmt.Println("Exapnd End")
 		context.Send(msg.LeftPid, ExpandMessage{
 			NewStorable: findBiggestKey(ll),
 			LeftMap:     ll,
@@ -412,8 +430,8 @@ sortMap sorts a given map, splits it in half and returns 2 maps.
 Each created map contains one half of the entries of the given map.
 */
 func sortMap(m map[int]string) (map[int]string, map[int]string) {
-	keys := make([]int, 0, len(m))
-	pairs := make([]Pair, 0, len(m))
+	keys := make([]int, len(m))
+	pairs := make([]Pair, len(m))
 	for k := range m {
 		keys = append(keys, k)
 	}
