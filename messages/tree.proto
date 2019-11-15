@@ -56,5 +56,5 @@ message Response {
 
 // Response contains the response from the service
 message TraverseResponse {
-    [] Arr = 1;
+    map<int32, string> Arr = 1;
 }
