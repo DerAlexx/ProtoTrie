@@ -318,10 +318,10 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 		state.LeftElement = msg.LeftPid
 		state.RightElement = msg.RightPid
 
-		ll, lr := sortMap(leftmap)
-		rl, rr := sortMap(rightmap)
+		ll, lr, storeL := sortMap(leftmap)
+		rl, rr, storeR := sortMap(rightmap)
 
-		fmt.Println("Exapnd Start")
+		fmt.Println("Expand Start")
 		fmt.Println(len(ll), len(lr), len(rl), len(rr))
 		for k, v := range ll {
 			fmt.Println(k, v)
@@ -337,15 +337,15 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 		for k, v := range rr {
 			fmt.Println(k, v)
 		}
-		fmt.Println("Exapnd End")
+		fmt.Println("Expand End")
 		context.Send(msg.LeftPid, ExpandMessage{
-			NewStorable: findBiggestKey(ll),
+			NewStorable: storeL,
 			LeftMap:     ll,
 			RightMap:    lr,
 		})
 
 		context.Send(msg.RightPid, ExpandMessage{
-			NewStorable: findBiggestKey(rl),
+			NewStorable: storeR,
 			LeftMap:     rl,
 			RightMap:    rr,
 		})
@@ -443,36 +443,40 @@ func (state *Nodeactor) Receive(context actor.Context) {
 	state.Behavior.Receive(context)
 }
 
+func returnAllKey(m map[int]string) []int {
+	arr := []int{}
+	for k := range m {
+		arr = append(arr, k)
+	}
+	return arr
+}
+
 /*
 sortMap sorts a given map, splits it in half and returns 2 maps.
 Each created map contains one half of the entries of the given map.
 */
-func sortMap(m map[int]string) (map[int]string, map[int]string) {
-	keys := make([]int, len(m))
-	pairs := make([]Pair, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
+func sortMap(m map[int]string) (map[int]string, map[int]string, int) {
+	var keys []int = returnAllKey(m)
 	sort.Ints(keys)
-	for k := range keys {
-		pairs = append(pairs, Pair{
-			Key:   k,
-			Value: m[k],
-		})
+
+	left := make(map[int]string, len(m)/2+1)
+	right := make(map[int]string, len(m)/2+1)
+
+	if len(keys) <= 0 {
+		return map[int]string{}, map[int]string{}, -1
+	} else if len(keys)%2 != 0 {
+		for i := 0; i < int(len(m)/2)+1; i++ {
+			left[keys[i]] = m[keys[i]]
+			if i+int(len(m)/2)+1 < len(keys) {
+				right[keys[i+int(len(m)/2)+1]] = m[i]
+			}
+		}
+	} else {
+		for i := 0; i < int(len(m)/2); i++ {
+			left[keys[i]] = m[keys[i]]
+			right[keys[i+int(len(m)/2)]] = m[keys[i+int(len(m)/2)]]
+		}
 	}
-	mapsizeleft := len(pairs) / 2
+	return left, right, findBiggestKey(left)
 
-	var (
-		r1, r2 map[int]string
-	)
-
-	for i := 0; i < mapsizeleft; i++ {
-		r1[pairs[i].Key] = pairs[i].Value
-	}
-
-	for ih := mapsizeleft; ih < len(pairs); ih++ {
-		r2[pairs[ih].Key] = pairs[ih].Value
-	}
-
-	return r1, r2
 }
