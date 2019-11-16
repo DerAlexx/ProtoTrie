@@ -147,12 +147,12 @@ func (state *Nodeactor) IsFull(isleft bool) bool {
 unionLeafs will get two leafs and later on union the
 data fields of both maps.
 */
-func unionLeafs(left, right *Leaf) map[int]string { //????
+func unionLeafs(left, right *Leaf) map[int]string {
 	leftmap := *left.getData()
-	rightmap := right.getData()
+	rightmap := *right.getData()
 	fmt.Println(leftmap)
 	fmt.Println(rightmap)
-	for k, v := range *rightmap {
+	for k, v := range rightmap {
 		leftmap[k] = v
 	}
 	fmt.Println(leftmap)

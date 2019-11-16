@@ -75,6 +75,15 @@ func (l *Leaf) Size() int {
 }
 
 /*
+Function to print a Leaf's map
+*/
+func printMap(x map[int]string) {
+	for k, v := range x {
+		fmt.Println(k, v)
+	}
+}
+
+/*
 Erase will erase a given key from
 */
 func (l *Leaf) Erase(key int) bool {
@@ -83,6 +92,7 @@ func (l *Leaf) Erase(key int) bool {
 		fmt.Println(l.getData())
 		delete(l.Data, key)
 		fmt.Println(l.getData())
+		printMap(*l.getData())
 		return true
 	}
 	fmt.Println("Key is not in this map")

@@ -165,61 +165,69 @@ func main() {
 
 	findEntry := flag.Int("find", -1, "Set this flag with the Flag key and value in order to change a pair into your trie")
 
-	key := flag.Int("key", -1, "Set this flag in order to pass a key")
+	key := flag.Int("key", 1, "Set this flag in order to pass a key")
 	value := flag.String("value", "", "Set this flag in order to pass a value")
 
 	deleteTrie := flag.Bool("delete-trie", false, "If this flag is set your trie will be deleted ~ DANGEROUS")
 
 	flag.Parse()
-	if *insertBool && *key != -1 && *value != "" {
-		fmt.Println("CLI Start Insert")
-		_, _ = sendInsert(*ID, *token, tree.Pair{
-			Key:   *key,
-			Value: *value,
-		})
-		fmt.Println("CLI Stop Insert")
-		time.Sleep(5 * time.Second)
-	} else if *findEntry != -1 {
-		fmt.Println("CLI Start Searching")
-		_, _ = sendFind(*ID, *token, *findEntry)
-		fmt.Println("CLI Stop Change")
-		time.Sleep(5 * time.Second)
-	} else if *changeBool && *key != -1 && *value != "" {
-		fmt.Println("CLI Start Change")
-		_, _ = sendChange(*ID, *token, tree.Pair{
-			Key:   *key,
-			Value: *value,
-		})
-		fmt.Println("CLI Stop Change")
-		time.Sleep(5 * time.Second)
-	} else if *traverseBool {
-		fmt.Println("CLI Start Traverse")
-		_, _ = sendTraverse(*ID, *token)
-		fmt.Println("CLI Stop Traverse")
-		time.Sleep(5 * time.Second)
-	} else if *delete != -1 {
-		fmt.Println("CLI Start Delete Entry")
-		_, _ = sendDelete(*ID, *token, *delete)
-		fmt.Println("CLI Stop Delete Entry")
-		time.Sleep(5 * time.Second)
-	} else if *deleteTrie {
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Are sure you wannt to delete the trie (yes/no)")
-		text, _ := reader.ReadString('\n')
-		if strings.HasPrefix(text, "yes") {
-			fmt.Println("Trie will be deleted")
-			_, _ = sendDeleteTrie(*ID, *token)
-			time.Sleep(5 * time.Second)
-		} else {
-			fmt.Println("Trie wont be deleted")
-		}
-	} else if *createTree != -1 {
-		fmt.Println("CLI Start Create Tree")
-		_, _ = sendCreateTrie(*createTree)
-		fmt.Println("CLI Stop Create Tree")
-		time.Sleep(5 * time.Second)
+	if *key < 1 {
+		fmt.Println("The key you enter musst be bigger than 0")
 	} else {
-		fmt.Println("Please make sure your given arguments fit the required pattern for more info enter .. -h")
+		if *insertBool && *key != -1 && *value != "" {
+			fmt.Println("CLI Start Insert")
+			_, _ = sendInsert(*ID, *token, tree.Pair{
+				Key:   *key,
+				Value: *value,
+			})
+			fmt.Println("CLI Stop Insert")
+			time.Sleep(5 * time.Second)
+		} else if *findEntry != -1 {
+			fmt.Println("CLI Start Searching")
+			_, _ = sendFind(*ID, *token, *findEntry)
+			fmt.Println("CLI Stop Searching")
+			time.Sleep(5 * time.Second)
+		} else if *changeBool && *key != -1 && *value != "" {
+			fmt.Println("CLI Start Change")
+			_, _ = sendChange(*ID, *token, tree.Pair{
+				Key:   *key,
+				Value: *value,
+			})
+			fmt.Println("CLI Stop Change")
+			time.Sleep(5 * time.Second)
+		} else if *traverseBool {
+			fmt.Println("CLI Start Traverse")
+			_, _ = sendTraverse(*ID, *token)
+			fmt.Println("CLI Stop Traverse")
+			time.Sleep(5 * time.Second)
+		} else if *delete != -1 {
+			fmt.Println("CLI Start Delete Entry")
+			_, _ = sendDelete(*ID, *token, *delete)
+			fmt.Println("CLI Stop Delete Entry")
+			time.Sleep(5 * time.Second)
+		} else if *deleteTrie {
+			reader := bufio.NewReader(os.Stdin)
+			fmt.Print("Are sure you wannt to delete the trie (yes/no)")
+			text, _ := reader.ReadString('\n')
+			if strings.HasPrefix(text, "yes") {
+				fmt.Println("Trie will be deleted")
+				_, _ = sendDeleteTrie(*ID, *token)
+				time.Sleep(5 * time.Second)
+			} else {
+				fmt.Println("Trie wont be deleted")
+			}
+		} else if *createTree != -1 {
+			if *createTree > 1 {
+				fmt.Println("CLI Start Create Tree")
+				_, _ = sendCreateTrie(*createTree)
+				fmt.Println("CLI Stop Create Tree")
+				time.Sleep(5 * time.Second)
+			} else {
+				fmt.Println("The minimum size for a trie is 2")
+			}
+		} else {
+			fmt.Println("Please make sure your given arguments fit the required pattern for more info enter .. -h")
+		}
 	}
 }
 
