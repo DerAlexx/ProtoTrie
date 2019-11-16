@@ -216,7 +216,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 				SomeValue: "Wrong Combination of ID and Token",
 			})
 		}
-	case *messages.CreateTreeRequest: // Geht
+	case *messages.CreateTreeRequest:
 		i, t, _ := AddNewTrie(int(msg.GetSize_()))
 		printMap()
 		fmt.Printf("The size of the RootNode Map before creating the trie is %d", len(RootNodes))
@@ -224,7 +224,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 			SomeValue: fmt.Sprintf("Your ID: %d, Your Token: %s", int(i), string(t)),
 		})
 		fmt.Printf("The size of the RootNode Map after creating the trie is %d", len(RootNodes))
-	case *messages.DeleteTreeRequest: // Geht
+	case *messages.DeleteTreeRequest:
 		ret := deleteTrie(ID(msg.GetId()), Token(msg.GetToken()))
 		fmt.Printf("The size of the RootNode Map before deleting the trie is %d", len(RootNodes))
 		if ret {
@@ -306,17 +306,11 @@ func MatchIDandToken(id ID, gtoken Token) bool {
 starts an actorsystem that can be reached remotely
 */
 func main() {
-
 	var wg sync.WaitGroup
-
 	wg.Add(1)
 	defer wg.Wait()
-
 	remote.Start("localhost:8091")
-
 	prop := actor.PropsFromProducer(NewServerRemoteActor)
 	globalpid = *context.Spawn(prop)
-	fmt.Println(globalpid)
-	// register a name for our local actor so that it can be spawned remotely
 	remote.Register("hello", prop)
 }

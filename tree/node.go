@@ -206,6 +206,7 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 				fmt.Println("[+] Leaf Leaf MAP")
 				fmt.Println(state.LeftElement.(*Leaf).getData())
 			}
+			state.IsLeft(msg.Element.Key)
 			context.Send(&msg.PID, &messages.Response{
 				SomeValue: fmt.Sprintf("%t", result.(bool)),
 			})
@@ -266,7 +267,8 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 		fmt.Println(state.LeftElement.(*Leaf), state.RightElement.(*Leaf))
 	case TraverseMessage:
 		ret := state.traverseChild()
-		if ret != nil {
+		if ret != nil && len(ret) > 0 {
+			fmt.Println("[+] Currently traversing")
 			map32 := make(map[int32]string, len(ret))
 			for k, v := range ret {
 				map32[int32(k)] = v

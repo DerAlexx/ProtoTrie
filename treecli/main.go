@@ -173,7 +173,6 @@ func main() {
 	flag.Parse()
 	if *insertBool && *key != -1 && *value != "" {
 		fmt.Println("CLI Start Insert")
-		time.Sleep(5 * time.Second)
 		_, _ = sendInsert(*ID, *token, tree.Pair{
 			Key:   *key,
 			Value: *value,
@@ -182,13 +181,11 @@ func main() {
 		time.Sleep(5 * time.Second)
 	} else if *findEntry != -1 {
 		fmt.Println("CLI Start Searching")
-		time.Sleep(5 * time.Second)
 		_, _ = sendFind(*ID, *token, *findEntry)
 		fmt.Println("CLI Stop Change")
 		time.Sleep(5 * time.Second)
 	} else if *changeBool && *key != -1 && *value != "" {
 		fmt.Println("CLI Start Change")
-		time.Sleep(5 * time.Second)
 		_, _ = sendChange(*ID, *token, tree.Pair{
 			Key:   *key,
 			Value: *value,
@@ -197,13 +194,11 @@ func main() {
 		time.Sleep(5 * time.Second)
 	} else if *traverseBool {
 		fmt.Println("CLI Start Traverse")
-		time.Sleep(5 * time.Second)
 		_, _ = sendTraverse(*ID, *token)
 		fmt.Println("CLI Stop Traverse")
 		time.Sleep(5 * time.Second)
 	} else if *delete != -1 {
 		fmt.Println("CLI Start Delete Entry")
-		time.Sleep(5 * time.Second)
 		_, _ = sendDelete(*ID, *token, *delete)
 		fmt.Println("CLI Stop Delete Entry")
 		time.Sleep(5 * time.Second)
@@ -220,7 +215,6 @@ func main() {
 		}
 	} else if *createTree != -1 {
 		fmt.Println("CLI Start Create Tree")
-		time.Sleep(5 * time.Second)
 		_, _ = sendCreateTrie(*createTree)
 		fmt.Println("CLI Stop Create Tree")
 		time.Sleep(5 * time.Second)

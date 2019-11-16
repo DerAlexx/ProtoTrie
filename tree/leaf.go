@@ -80,7 +80,9 @@ Erase will erase a given key from
 func (l *Leaf) Erase(key int) bool {
 	if l.Contains(key) {
 		fmt.Println("Key is in this map")
+		fmt.Println(l.getData())
 		delete(l.Data, key)
+		fmt.Println(l.getData())
 		return true
 	}
 	fmt.Println("Key is not in this map")

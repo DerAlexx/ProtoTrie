@@ -1,5 +1,7 @@
 # Trie
 
+A Highperformence Trieservice implemented using Proto.Actor and gRPC. Is able to Store Int-String-Pairs. 
+
 ## CLI commands
 
 -   Starten des Treeservice mit `go run ./treeservice`
@@ -11,6 +13,8 @@
     -   Suchen: `go run ./treecli -find -key 8 -id 545 token 37`
     -   Baum löschen (muss mit yes bestätigt werden): `go run ./treecli -deleteTree -id 545 token 37`
 -  Stimmt der Token mit die ID nicht überein, wird eine Fehlermeldung ausgegeben.
+
+If you wanna test in a automated why just run the pythonscript with no arguments and see where the magic happens.
 
 ## Flags CLI:
 ```
@@ -34,6 +38,8 @@
         gibt den Inhalt des Baums aus (default false)
   -value string
         value der im Baum abgelegt wird/ist (default "")
+
+```
 
 ## Ausführen mit Docker
 
