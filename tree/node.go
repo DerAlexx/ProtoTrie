@@ -253,12 +253,17 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			SomeValue: fmt.Sprintf("%s", result.(string)),
 		})
 	case GetBasicNodesMessage:
+		fmt.Print("[+] Before BH Change", &state.Behavior, "\n")
+		fmt.Println(msg.LeftPid, msg.RightPid, msg.SSender)
 		state.expand(state.LeftElement.(*Leaf), state.RightElement.(*Leaf), &msg, context)
 		state.Behavior.Become(state.KnownNodeBehavior)
+		fmt.Print("[+] After BH Change", &state.Behavior, "\n")
 	case ExpandMessage:
+		fmt.Println(msg.NewStorable, msg.LeftMap, msg.RightMap)
 		state.SetStoreable(msg.NewStorable)
 		state.LeftElement.(*Leaf).insertMap(msg.LeftMap)
 		state.RightElement.(*Leaf).insertMap(msg.RightMap)
+		fmt.Println(state.LeftElement.(*Leaf), state.RightElement.(*Leaf))
 	case TraverseMessage:
 		ret := state.traverseChild()
 		if ret != nil {
@@ -284,7 +289,7 @@ func findBiggestKey(m map[int]string) int {
 		biggestKey := 0
 		for key := range m {
 			if key > biggestKey {
-				key = biggestKey
+				biggestKey = key
 			}
 		}
 		return biggestKey
@@ -312,7 +317,7 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 		ll, lr, storeL := sortMap(leftmap)
 		rl, rr, storeR := sortMap(rightmap)
 
-		fmt.Println("Expand Start")
+		fmt.Println("[+] Expand Start")
 		fmt.Println(len(ll), len(lr), len(rl), len(rr))
 		for k, v := range ll {
 			fmt.Println(k, v)
@@ -328,7 +333,8 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 		for k, v := range rr {
 			fmt.Println(k, v)
 		}
-		fmt.Println("Expand End")
+		fmt.Printf("[+] Knoten Storables L: %d, R: %d", storeL, storeR)
+		fmt.Println("[+] Expand End")
 		context.Send(msg.LeftPid, ExpandMessage{
 			NewStorable: storeL,
 			LeftMap:     ll,
@@ -367,9 +373,11 @@ func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 		fmt.Println("Knowing Insert")
 		if state.IsLeft(msg.Element.Key) {
 			fmt.Println("Knowing Insert Left")
+			fmt.Println(msg.Element, msg.PID, msg.PIDRoot, msg.PIDService)
 			context.Send(state.LeftElement.(*actor.PID), msg)
 		} else {
 			fmt.Println("Knowing Insert Right")
+			fmt.Println(msg)
 			context.Send(state.RightElement.(*actor.PID), msg)
 		}
 	case ChangeValueMessage:

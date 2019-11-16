@@ -5,13 +5,17 @@ import os,time
 
 def testExpand():
 	os.system("go run ./treecli -create-trie 1")
-	time.sleep(10)
+	print("Created trie")
+	time.sleep(5)
 	os.system("go run ./treecli -insert -key 230 -value \"hahah\" -id 545 -token 37")
-	time.sleep(10)
+	print("Inserted first value")
+	time.sleep(5)
 	os.system("go run ./treecli -insert -key 234 -value \"PaulskleinerPenis\" -id 545 -token 37")
-	time.sleep(10)
+	print("Inserted second value")
+	time.sleep(5)
 	os.system("go run ./treecli -insert -key 235 -value \"PaulskleinerPenis\" -id 545 -token 37")
-	time.sleep(10)
+	print("Inserted third value")
+	time.sleep(5)
 	os.system("go run ./treecli -traverse -id 545 -token 37")
 	time.sleep(2)
 

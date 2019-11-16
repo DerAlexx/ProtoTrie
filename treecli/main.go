@@ -154,7 +154,6 @@ starts the cli. The cli uses command line parameters
  #search, insert and delete entries
 */
 func main() {
-	fmt.Println("Hello Tree-CLI!")
 	createTree := flag.Int("create-trie", -1, "Create a trie and enter the size of the leafs.")
 	ID := flag.Int("id", 0, "Enter the ID of your trie")
 	token := flag.String("token", "", "Enter a token fitting the ID of the trie in order to gain access to your trie.")
@@ -170,8 +169,6 @@ func main() {
 	value := flag.String("value", "", "Set this flag in order to pass a value")
 
 	deleteTrie := flag.Bool("delete-trie", false, "If this flag is set your trie will be deleted ~ DANGEROUS")
-
-	//TODO Travserse Flag
 
 	flag.Parse()
 	if *insertBool && *key != -1 && *value != "" {
@@ -277,9 +274,7 @@ func remotesend(mess interface{}) (bool, error) {
 	pid := context.Spawn(props)
 	fmt.Println(pid)
 
-	fmt.Println("Sleeping 5 seconds...")
 	time.Sleep(5 * time.Second)
-	fmt.Println("Awake...")
 	fmt.Printf("Trying to connect")
 
 	spawnResponse, err := remote.SpawnNamed("localhost:8091", "remote", "hello", 5*time.Second)
