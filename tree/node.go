@@ -133,7 +133,7 @@ return true else false.
 func (state *Nodeactor) IsFull(isleft bool) bool {
 	k := state.LeftElement.(*Leaf).Size() == state.getLimit()
 	j := state.RightElement.(*Leaf).Size() == state.getLimit()
-	fmt.Printf("ISFULL >>>>> %t %t %t \n", k, j, isleft)
+	fmt.Printf("[+] ISFULL: %t %t %t \n", k, j, isleft)
 	if k && isleft {
 		return true
 	} else if j && !isleft {
@@ -165,10 +165,8 @@ traverseChild will traverse the subtrie by running over the child and return a M
 func (state *Nodeactor) traverseChild() map[int]string {
 	switch state.LeftElement.(type) {
 	case Leaf:
-		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Node traverse child <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 		return unionLeafs(state.LeftElement.(*Leaf), state.RightElement.(*Leaf))
 	case *Leaf:
-		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Node traverse child 2<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 		return unionLeafs(state.LeftElement.(*Leaf), state.RightElement.(*Leaf))
 	default:
 		return nil
@@ -183,50 +181,47 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	var result interface{}
 	switch msg := context.Message().(type) {
 	case InsertMessage:
-		fmt.Println("Insert Service")
+		fmt.Println("[+] Insert into Storing Actor")
 		if state.IsFull(state.IsLeft(msg.Element.Key)) {
-			fmt.Println("Insert isFull Service")
+			fmt.Println("[+] Leafs is full --> Expand")
 			context.RequestWithCustomSender(&msg.PIDService, &WantBasicNodeActorsMessage{
 				PMessageResult: &msg,
 				Size:           state.getLimit(),
 			}, context.Self())
 		} else {
 			if state.IsLeft(msg.Element.Key) {
-				fmt.Println("Insert isLeft Service")
+				fmt.Println("[+] Is Left sorted key")
 				result = state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
-				fmt.Printf("[+] %t", state.RightElement.(*Leaf).Contains(msg.Element.Key))
+				fmt.Printf("[+] %t \n", state.RightElement.(*Leaf).Contains(msg.Element.Key))
+				fmt.Println("[+] Right Leaf MAP")
+				fmt.Println(state.RightElement.(*Leaf).getData())
+				fmt.Println("[+] Leaf Leaf MAP")
+				fmt.Println(state.LeftElement.(*Leaf).getData())
 			} else {
-				fmt.Println("Insert isRight Service")
+				fmt.Println("[+] Is Right sorted key")
 				result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
-				fmt.Printf("[+] %t", state.LeftElement.(*Leaf).Contains(msg.Element.Key))
+				fmt.Printf("[+] %t \n", state.LeftElement.(*Leaf).Contains(msg.Element.Key))
+				fmt.Println("[+] Right Leaf MAP")
+				fmt.Println(state.RightElement.(*Leaf).getData())
+				fmt.Println("[+] Leaf Leaf MAP")
+				fmt.Println(state.LeftElement.(*Leaf).getData())
 			}
-			fmt.Println("Return insert Service")
 			context.Send(&msg.PID, &messages.Response{
 				SomeValue: fmt.Sprintf("%t", result.(bool)),
 			})
 		}
 	case DeleteMessage:
-		fmt.Printf("[+] Given Key %d \n", msg.Key)
 		if state.IsLeft(msg.Key) {
-			//fmt.Printf("[+] %d \n", state.Limit)
-			//fmt.Printf("[+] Left %t \n", state.LeftElement)
 			result = state.LeftElement.(*Leaf).Erase(msg.Key)
-			//fmt.Printf("[+] %d \n", state.Limit)
 		} else {
-			//fmt.Printf("[+] %d \n", state.Limit)
-			//fmt.Printf("[+] Right %t \n", state.LeftElement)
 			result = state.RightElement.(*Leaf).Erase(msg.Key)
-			//fmt.Printf("[+] %d \n", state.Limit)
 		}
-		fmt.Printf("[+] Contains Left: %t Contains Right: %t ", state.LeftElement.(*Leaf).Contains(msg.Key), state.RightElement.(*Leaf).Contains(msg.Key))
 		context.Send(&msg.PID, &messages.Response{
 			SomeValue: fmt.Sprintf("%t", result.(bool)),
 		})
 	case ChangeValueMessage:
 		if state.IsLeft(msg.Element.Key) {
-			fmt.Printf("[+] Before %s \n", state.LeftElement.(*Leaf).Find(msg.Element.Key))
 			result = state.LeftElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
-			fmt.Printf("[+] After %s \n", state.LeftElement.(*Leaf).Find(msg.Element.Key))
 		} else {
 			result = state.RightElement.(*Leaf).Change(msg.Element.Key, msg.Element.Value)
 		}
@@ -236,21 +231,17 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	case FindMessage:
 		if state.IsLeft(msg.Key) {
 			result = state.LeftElement.(*Leaf).Find(msg.Key)
-			fmt.Println("left")
 			for k := range *state.LeftElement.(*Leaf).getData() {
 				print(k)
 			}
-			fmt.Println("\nright")
 			for k := range *state.RightElement.(*Leaf).getData() {
 				print(k)
 			}
 		} else {
 			result = state.RightElement.(*Leaf).Find(msg.Key)
-			fmt.Println("left")
 			for k := range *state.LeftElement.(*Leaf).getData() {
 				print(k)
 			}
-			fmt.Println("\nright")
 			for k := range *state.RightElement.(*Leaf).getData() {
 				print(k)
 			}
@@ -262,18 +253,15 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			SomeValue: fmt.Sprintf("%s", result.(string)),
 		})
 	case GetBasicNodesMessage:
-		state.expand(state.LeftElement.(*Leaf), state.LeftElement.(*Leaf), &msg, context)
+		state.expand(state.LeftElement.(*Leaf), state.RightElement.(*Leaf), &msg, context)
+		state.Behavior.Become(state.KnownNodeBehavior)
 	case ExpandMessage:
 		state.SetStoreable(msg.NewStorable)
 		state.LeftElement.(*Leaf).insertMap(msg.LeftMap)
 		state.RightElement.(*Leaf).insertMap(msg.RightMap)
 	case TraverseMessage:
-		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Node Traverse before method <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-		ret := state.traverseChild() //Fehler
-		fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Node Traverse after method <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
-		fmt.Println(ret)
+		ret := state.traverseChild()
 		if ret != nil {
-			fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Node Traverse before send <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")
 			map32 := make(map[int32]string, len(ret))
 			for k, v := range ret {
 				map32[int32(k)] = v
@@ -281,9 +269,6 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			context.Send(&msg.PID, &messages.TraverseResponse{
 				Arr: map32,
 			})
-			/*context.Send(&msg.PID, messages.Response{
-				SomeValue: "map32",
-			})*/
 		}
 	default:
 		fmt.Println(reflect.TypeOf(msg))
@@ -355,7 +340,6 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 			LeftMap:     rl,
 			RightMap:    rr,
 		})
-
 		return true
 	}
 	return false
@@ -380,9 +364,12 @@ func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 			context.Send(state.RightElement.(*actor.PID), msg)
 		}
 	case InsertMessage:
+		fmt.Println("Knowing Insert")
 		if state.IsLeft(msg.Element.Key) {
+			fmt.Println("Knowing Insert Left")
 			context.Send(state.LeftElement.(*actor.PID), msg)
 		} else {
+			fmt.Println("Knowing Insert Right")
 			context.Send(state.RightElement.(*actor.PID), msg)
 		}
 	case ChangeValueMessage:
@@ -430,9 +417,8 @@ otherwise it will return false
 */
 func (state *Nodeactor) IsLeft(value int) bool {
 	has, is := state.HasValueToDecide()
-	fmt.Printf("is: %d, compare: %d, has: %t \n", is, value, has)
+	fmt.Printf("[+] is: %d, compare: %d, has: %t \n", is, value, has)
 	if !has {
-		fmt.Println("Ruf immer wieder den Setter auf")
 		state.SetStoreable(value)
 		return true
 	}
@@ -449,6 +435,9 @@ func (state *Nodeactor) Receive(context actor.Context) {
 	state.Behavior.Receive(context)
 }
 
+/*
+returnAllKeys //TODO
+*/
 func returnAllKey(m map[int]string) []int {
 	arr := []int{}
 	for k := range m {
