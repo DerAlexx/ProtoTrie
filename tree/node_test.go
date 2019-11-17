@@ -11,7 +11,7 @@ func TestAddNewTrie(t *testing.T) {
 	ret := ac.(*Nodeactor).getLimit()
 
 	if ret != 5 {
-		t.Errorf("Expected return afer getLimit is = %d ; got %d", 5, ret)
+		t.Errorf("Expected return after getLimit is = %d ; got %d", 5, ret)
 	}
 }
 
@@ -29,7 +29,7 @@ func TestReturnAllKey(t *testing.T) {
 	abc := reflect.DeepEqual(ret, ret2)
 
 	if !abc {
-		t.Errorf("Expected return afer returnallkeys is = %t; got %t", true, false)
+		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, abc)
 	}
 }
 
@@ -62,7 +62,7 @@ func TestGetConstrain(t *testing.T) {
 	ret := ac.(*Nodeactor).getConstrain()
 
 	if ret != -1 {
-		t.Errorf("Expected return afer getconstrain is = %d; got %d", -1, ret)
+		t.Errorf("Expected return after getconstrain is = %d; got %d", -1, ret)
 	}
 }
 
@@ -75,7 +75,7 @@ func TestSetStoreable(t *testing.T) {
 	ret := a.getConstrain()
 
 	if ret != 10 {
-		t.Errorf("Expected return afer setstorable is = %d; got %d", 10, ret)
+		t.Errorf("Expected return after setstorable is = %d; got %d", 10, ret)
 	}
 }
 
@@ -88,7 +88,7 @@ func TestHasValueToDecide(t *testing.T) {
 	ret1, ret2 := a.HasValueToDecide()
 
 	if !ret1 || ret2 != 10 {
-		t.Errorf("Expected return afer hasvaluetodecide is = %t %d got %t %d", true, 10, ret1, ret2)
+		t.Errorf("Expected return after hasvaluetodecide is = %t %d got %t %d", true, 10, ret1, ret2)
 	}
 }
 
@@ -102,7 +102,7 @@ func TestFindBiggestKey(t *testing.T) {
 	ret := findBiggestKey(testmap)
 
 	if ret != 6 {
-		t.Errorf("Expected return afer findbiggestkey is = %d; got %d", 6, ret)
+		t.Errorf("Expected return after findbiggestkey is = %d; got %d", 6, ret)
 	}
 }
 
@@ -110,35 +110,35 @@ func TestFindBiggestKey(t *testing.T) {
 func TestIsLeft(t *testing.T) {
 
 	if !abc {
-		t.Errorf("Expected return afer returnallkeys is = %t; got %t", true, false)
+		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, false)
 	}
 }
 
 func TestTraverseChild(t *testing.T) {
 
 	if !abc {
-		t.Errorf("Expected return afer returnallkeys is = %t; got %t", true, false)
+		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, false)
 	}
 }
 
 func TestUnionsLeft(t *testing.T) {
 
 	if !abc {
-		t.Errorf("Expected return afer returnallkeys is = %t; got %t", true, false)
+		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, false)
 	}
 }
 
 func TestIsFull(t *testing.T) {
 
 	if !abc {
-		t.Errorf("Expected return afer returnallkeys is = %t; got %t", true, false)
+		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, false)
 	}
 }
 
 func TestExpand(t *testing.T) {
 
 	if !abc {
-		t.Errorf("Expected return afer returnallkeys is = %t; got %t", true, false)
+		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, false)
 	}
 }
 */

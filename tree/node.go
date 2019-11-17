@@ -418,7 +418,8 @@ func sortMap(m map[int]string) (map[int]string, map[int]string, int) {
 		for i := 0; i < int(len(m)/2)+1; i++ {
 			left[keys[i]] = m[keys[i]]
 			if i+int(len(m)/2)+1 < len(keys) {
-				right[keys[i+int(len(m)/2)+1]] = m[i] //Error
+				right[keys[i+int(len(m)/2)+1]] = m[keys[i+int(len(m)/2)+1]]
+
 			}
 		}
 	} else {
