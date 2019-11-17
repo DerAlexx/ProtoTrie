@@ -62,7 +62,7 @@ func TestGetConstrain(t *testing.T) {
 	ret := ac.(*Nodeactor).getConstrain()
 
 	if ret != -1 {
-		t.Errorf("Expected return afer returnallkeys is = %t; got %t", true, false)
+		t.Errorf("Expected return afer getconstrain is = %d; got %d", -1, ret)
 	}
 }
 
@@ -75,7 +75,20 @@ func TestSetStoreable(t *testing.T) {
 	ret := a.getConstrain()
 
 	if ret != 10 {
-		t.Errorf("Expected return afer returnallkeys is = %t; got %t", true, false)
+		t.Errorf("Expected return afer setstorable is = %d; got %d", 10, ret)
+	}
+}
+
+func TestHasValueToDecide(t *testing.T) {
+
+	ac := CreateBasicNode(5)
+	a := ac.(*Nodeactor)
+	a.SetStoreable(10)
+
+	ret1, ret2 := a.HasValueToDecide()
+
+	if !ret1 || ret2 != 10 {
+		t.Errorf("Expected return afer hasvaluetodecide is = %t %d got %t %d", true, 10, ret1, ret2)
 	}
 }
 
@@ -116,13 +129,6 @@ func TestUnionsLeft(t *testing.T) {
 }
 
 func TestIsFull(t *testing.T) {
-
-	if !abc {
-		t.Errorf("Expected return afer returnallkeys is = %t; got %t", true, false)
-	}
-}
-
-func TestHasValueToDecide(t *testing.T) {
 
 	if !abc {
 		t.Errorf("Expected return afer returnallkeys is = %t; got %t", true, false)
