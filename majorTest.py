@@ -44,10 +44,10 @@ def TestDelete():
 	Function to Test the Delete Command of our Trie.
 	'''
 	os.system("go run ./treecli -delete 342 -id 545 -token 37")
-	print("[-->]  Delete Value")
+	print("[+]  Delete Value")
 	time.sleep(2.5)
 	os.system("go run ./treecli -delete 12 -id 545 -token 37")
-	print("[-->]  Delete value")
+	print("[+]  Delete value")
 	time.sleep(2.5)
 
 def TestFind():
@@ -55,10 +55,10 @@ def TestFind():
 	Function to test the find command.
 	'''
 	os.system("go run ./treecli -find 226 -id 545 -token 37")
-	print("[-->]  Found value")
+	print("[+]  Found value")
 	time.sleep(2.5)
 	os.system("go run ./treecli -find 12 -id 545 -token 37")
-	print("[-->]  Found value")
+	print("[+]  Found value")
 	time.sleep(2.5)
 
 def TestTraverse():
@@ -66,7 +66,7 @@ def TestTraverse():
 	Function to test the traverse command of our Trie.
 	'''
 	os.system("go run ./treecli -traverse -id 545 -token 37")
-	print("[-->]  Traversed Trie")
+	print("[+]  Traversed Trie")
 	time.sleep(2.5)
 
 def TestcreateTrie(size):
@@ -82,7 +82,7 @@ def RunGoTests():
 	'''
 	Function to run the go test command in order to see the results of the Test.
 	'''
-	os.system("go test ./tree/ -cover -timeout 10")
+	os.system("go test ./tree/ -cover")
 	print("[+] Executed Tests")
 
 def main():
