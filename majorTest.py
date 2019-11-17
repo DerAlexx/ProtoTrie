@@ -87,6 +87,13 @@ def TestcreateTrie(size):
 	print("[+] Created Trie")
 	time.sleep(2.5)
 
+def RunGoTests():
+	'''
+	Function to run the go test command in order to see the results of the Test.
+	'''
+	os.system("go test tree/... -cover -timeout 10")
+	print("[+] Created Trie")
+
 def main():
 	'''
 	Programm entry point.

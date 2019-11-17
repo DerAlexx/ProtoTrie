@@ -428,5 +428,4 @@ func sortMap(m map[int]string) (map[int]string, map[int]string, int) {
 		}
 	}
 	return left, right, findBiggestKey(left)
-
 }
