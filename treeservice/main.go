@@ -61,7 +61,7 @@ context the root actor of the service.
 var context actor.RootContext
 
 /*
-PrintLog will print a message in a special format
+PrintLog will print a message in a special format.
 */
 func PrintLog(log string) {
 	fmt.Printf("[+] %s \n", log)

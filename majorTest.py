@@ -105,7 +105,7 @@ def main():
 	TestChange()
 	TestDelete()
 	TestFind()
-	TestDeleteTrie()
+	#TestDeleteTrie()
 	TestTraverse()
 	RunGoTests()
 	print("[+] Script finished!")
