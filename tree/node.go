@@ -104,7 +104,12 @@ type Nodeactor struct {
 	Limit        int
 }
 
-func 
+/*
+nodeAndLeafLogger will be a logger for the Servcie to follow along what happens in the nodes and leafs.
+*/
+func nodeAndLeafLogger(message string) {
+	//TODO missing
+}
 
 /*
 CreateBasicNode will return a Basic node containing the parentnode and a left, right leaf.
