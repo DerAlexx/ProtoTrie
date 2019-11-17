@@ -99,13 +99,12 @@ def main():
 	'''
 	print("[+] Script started!")
 	TestcreateTrie(2)
-	TestDeleteTrie()
-	return
 	TestInsert()
 	TestChange()
 	TestDelete()
 	TestFind()
 	TestTraverse()
+	TestDeleteTrie()
 	RunGoTests()
 	print("[+] Script finished!")
 

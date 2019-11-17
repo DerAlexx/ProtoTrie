@@ -14,7 +14,7 @@ A Highperformence Trieservice implemented using Proto.Actor and gRPC. Is able to
     -   Baum löschen (muss mit yes bestätigt werden): `go run ./treecli -deleteTree -id 545 token 37`
 -  Stimmt der Token mit die ID nicht überein, wird eine Fehlermeldung ausgegeben.
 
-If you wanna test in a automated why just run the pythonscript with no arguments and see where the magic happens.
+If you wanna test in an automated way just run the pythonscript with no arguments and see where the magic happens.
 
 ## Flags CLI:
 ```
