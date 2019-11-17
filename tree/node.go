@@ -104,6 +104,8 @@ type Nodeactor struct {
 	Limit        int
 }
 
+func 
+
 /*
 CreateBasicNode will return a Basic node containing the parentnode and a left, right leaf.
 */
@@ -131,12 +133,9 @@ IsFull will check whether on of the Leafs is full with pairs and in this case
 return true else false.
 */
 func (state *Nodeactor) IsFull(isleft bool) bool {
-	k := state.LeftElement.(*Leaf).Size() == state.getLimit()
-	j := state.RightElement.(*Leaf).Size() == state.getLimit()
-	fmt.Printf("[+] ISFULL: %t %t %t \n", k, j, isleft)
-	if k && isleft {
+	if state.LeftElement.(*Leaf).Size() == state.getLimit() && isleft {
 		return true
-	} else if j && !isleft {
+	} else if state.RightElement.(*Leaf).Size() == state.getLimit() && !isleft {
 		return true
 	} else {
 		return false
@@ -148,15 +147,16 @@ unionLeafs will get two leafs and later on union the
 data fields of both maps.
 */
 func unionLeafs(left, right *Leaf) map[int]string {
-	leftmap := *left.getData()
-	rightmap := *right.getData()
-	fmt.Println(leftmap)
-	fmt.Println(rightmap)
-	for k, v := range rightmap {
-		leftmap[k] = v
+	leftmap := left.getData()
+	rightmap := right.getData()
+	newMap := map[int]string{}
+	for k, v := range *rightmap {
+		newMap[k] = v
 	}
-	fmt.Println(leftmap)
-	return leftmap
+	for k, v := range *leftmap {
+		newMap[k] = v
+	}
+	return newMap
 }
 
 /*
@@ -181,32 +181,17 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	var result interface{}
 	switch msg := context.Message().(type) {
 	case InsertMessage:
-		fmt.Println("[+] Insert into Storing Actor")
 		if state.IsFull(state.IsLeft(msg.Element.Key)) {
-			fmt.Println("[+] Leafs is full --> Expand")
 			context.RequestWithCustomSender(&msg.PIDService, &WantBasicNodeActorsMessage{
 				PMessageResult: &msg,
 				Size:           state.getLimit(),
 			}, context.Self())
 		} else {
 			if state.IsLeft(msg.Element.Key) {
-				fmt.Println("[+] Is Left sorted key")
 				result = state.LeftElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
-				fmt.Printf("[+] %t \n", state.RightElement.(*Leaf).Contains(msg.Element.Key))
-				fmt.Println("[+] Right Leaf MAP")
-				fmt.Println(state.RightElement.(*Leaf).getData())
-				fmt.Println("[+] Leaf Leaf MAP")
-				fmt.Println(state.LeftElement.(*Leaf).getData())
 			} else {
-				fmt.Println("[+] Is Right sorted key")
 				result = state.RightElement.(*Leaf).Insert(msg.Element.Key, msg.Element.Value)
-				fmt.Printf("[+] %t \n", state.LeftElement.(*Leaf).Contains(msg.Element.Key))
-				fmt.Println("[+] Right Leaf MAP")
-				fmt.Println(state.RightElement.(*Leaf).getData())
-				fmt.Println("[+] Leaf Leaf MAP")
-				fmt.Println(state.LeftElement.(*Leaf).getData())
 			}
-			state.IsLeft(msg.Element.Key)
 			context.Send(&msg.PID, &messages.Response{
 				SomeValue: fmt.Sprintf("%t", result.(bool)),
 			})
@@ -232,20 +217,8 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 	case FindMessage:
 		if state.IsLeft(msg.Key) {
 			result = state.LeftElement.(*Leaf).Find(msg.Key)
-			for k := range *state.LeftElement.(*Leaf).getData() {
-				print(k)
-			}
-			for k := range *state.RightElement.(*Leaf).getData() {
-				print(k)
-			}
 		} else {
 			result = state.RightElement.(*Leaf).Find(msg.Key)
-			for k := range *state.LeftElement.(*Leaf).getData() {
-				print(k)
-			}
-			for k := range *state.RightElement.(*Leaf).getData() {
-				print(k)
-			}
 		}
 		if result == "" {
 			result = fmt.Sprintf("There is no Entry in the Database with id %d", msg.Key)
@@ -254,21 +227,15 @@ func (state *Nodeactor) StoringNodeBehavior(context actor.Context) {
 			SomeValue: fmt.Sprintf("%s", result.(string)),
 		})
 	case GetBasicNodesMessage:
-		fmt.Print("[+] Before BH Change", &state.Behavior, "\n")
-		fmt.Println(msg.LeftPid, msg.RightPid, msg.SSender)
 		state.expand(state.LeftElement.(*Leaf), state.RightElement.(*Leaf), &msg, context)
 		state.Behavior.Become(state.KnownNodeBehavior)
-		fmt.Print("[+] After BH Change", &state.Behavior, "\n")
 	case ExpandMessage:
-		fmt.Println(msg.NewStorable, msg.LeftMap, msg.RightMap)
 		state.SetStoreable(msg.NewStorable)
 		state.LeftElement.(*Leaf).insertMap(msg.LeftMap)
 		state.RightElement.(*Leaf).insertMap(msg.RightMap)
-		fmt.Println(state.LeftElement.(*Leaf), state.RightElement.(*Leaf))
 	case TraverseMessage:
 		ret := state.traverseChild()
 		if ret != nil && len(ret) > 0 {
-			fmt.Println("[+] Currently traversing")
 			map32 := make(map[int32]string, len(ret))
 			for k, v := range ret {
 				map32[int32(k)] = v
@@ -308,35 +275,13 @@ func (state *Nodeactor) expand(left, right *Leaf, msg *GetBasicNodesMessage, con
 		leftmap  map[int]string
 		rightmap map[int]string
 	)
-	fmt.Println(*left, *right, *msg)
 	if left != nil && right != nil && msg != nil {
 		leftmap = *left.getData()
 		rightmap = *right.getData()
-
 		state.LeftElement = msg.LeftPid
 		state.RightElement = msg.RightPid
-
 		ll, lr, storeL := sortMap(leftmap)
 		rl, rr, storeR := sortMap(rightmap)
-
-		fmt.Println("[+] Expand Start")
-		fmt.Println(len(ll), len(lr), len(rl), len(rr))
-		for k, v := range ll {
-			fmt.Println(k, v)
-		}
-		for k, v := range lr {
-			fmt.Println(k, v)
-		}
-
-		for k, v := range rl {
-			fmt.Println(k, v)
-		}
-
-		for k, v := range rr {
-			fmt.Println(k, v)
-		}
-		fmt.Printf("[+] Knoten Storables L: %d, R: %d", storeL, storeR)
-		fmt.Println("[+] Expand End")
 		context.Send(msg.LeftPid, ExpandMessage{
 			NewStorable: storeL,
 			LeftMap:     ll,
@@ -372,14 +317,9 @@ func (state *Nodeactor) KnownNodeBehavior(context actor.Context) {
 			context.Send(state.RightElement.(*actor.PID), msg)
 		}
 	case InsertMessage:
-		fmt.Println("Knowing Insert")
 		if state.IsLeft(msg.Element.Key) {
-			fmt.Println("Knowing Insert Left")
-			fmt.Println(msg.Element, msg.PID, msg.PIDRoot, msg.PIDService)
 			context.Send(state.LeftElement.(*actor.PID), msg)
 		} else {
-			fmt.Println("Knowing Insert Right")
-			fmt.Println(msg)
 			context.Send(state.RightElement.(*actor.PID), msg)
 		}
 	case ChangeValueMessage:
@@ -427,7 +367,6 @@ otherwise it will return false
 */
 func (state *Nodeactor) IsLeft(value int) bool {
 	has, is := state.HasValueToDecide()
-	fmt.Printf("[+] is: %d, compare: %d, has: %t \n", is, value, has)
 	if !has {
 		state.SetStoreable(value)
 		return true
@@ -439,14 +378,15 @@ func (state *Nodeactor) IsLeft(value int) bool {
 }
 
 /*
-Receive will recieve some messages and direct them to the nodes
+Receive will Receive messages in a way depending on the Behavior of the
+NodeActor.Behavior State.
 */
 func (state *Nodeactor) Receive(context actor.Context) {
 	state.Behavior.Receive(context)
 }
 
 /*
-returnAllKeys //TODO
+returnAllKeys will get a map and return a slice with all keys in it.
 */
 func returnAllKey(m map[int]string) []int {
 	arr := []int{}

@@ -4,28 +4,28 @@ import "fmt"
 
 /*
 Leaf is the representation of the LEAF of a Node at
-the end of a treebranch
+the end of a treebranch.
 */
 type Leaf struct {
 	Data map[int]string
 }
 
 /*
-getData will return a pointer to the data of the given leaf
+getData will return a pointer to the data of the given leaf.
 */
 func (l *Leaf) getData() *map[int]string {
 	return &l.Data
 }
 
 /*
-setData will set the data field on the given Data
+setData will set the data field on the given Data.
 */
 func (l *Leaf) setData(data *map[int]string) {
 	l.Data = *data
 }
 
 /*
-NewLeaf will return a new Leaf
+NewLeaf will return a new Leaf.
 */
 func NewLeaf() *Leaf {
 	return &Leaf{
@@ -34,8 +34,8 @@ func NewLeaf() *Leaf {
 }
 
 /*
-Contains will check whether or not a key is already in the map
-@return will return true in case the key is in the map otherwise false
+Contains will check whether or not a key is already in the map.
+@return will return true in case the key is in the map otherwise false.
 */
 func (l *Leaf) Contains(key int) bool {
 	_, ok := l.Data[key]
@@ -43,7 +43,7 @@ func (l *Leaf) Contains(key int) bool {
 }
 
 /*
-insertMap will insert a given map into a leaf's datafield
+insertMap will insert a given map into a leaf's datafield.
 */
 func (l Leaf) insertMap(m map[int]string) {
 	for k, v := range m {
@@ -55,7 +55,7 @@ func (l Leaf) insertMap(m map[int]string) {
 Insert will insert a pair into the map incase it is not already
 in the map.
 @return will return a bool depending on the insert, if it can insert the pair
-it will return true otherwise false
+it will return true otherwise false.
 */
 func (l Leaf) Insert(key int, value string) bool {
 	if !l.Contains(key) {
@@ -67,15 +67,15 @@ func (l Leaf) Insert(key int, value string) bool {
 
 /*
 Size will return the size of map of the leaf,
-so who many paris are stored in the map
-@return will be an int value
+so who many paris are stored in the map.
+@return will be an int value.
 */
 func (l *Leaf) Size() int {
 	return len(l.Data)
 }
 
 /*
-Function to print a Leaf's map
+Function to print a Leaf's map.
 */
 func printMap(x map[int]string) {
 	for k, v := range x {
@@ -84,23 +84,18 @@ func printMap(x map[int]string) {
 }
 
 /*
-Erase will erase a given key from
+Erase will erase a given key from.
 */
 func (l *Leaf) Erase(key int) bool {
 	if l.Contains(key) {
-		fmt.Println("Key is in this map")
-		fmt.Println(l.getData())
 		delete(l.Data, key)
-		fmt.Println(l.getData())
-		printMap(*l.getData())
 		return true
 	}
-	fmt.Println("Key is not in this map")
 	return false
 }
 
 /*
-Change will change the value of a given key in the leaf
+Change will change the value of a given key in the leaf.
 */
 func (l *Leaf) Change(key int, value string) bool {
 	if l.Contains(key) {
@@ -111,7 +106,7 @@ func (l *Leaf) Change(key int, value string) bool {
 }
 
 /*
-Find will return a value by a given key
+Find will return a value by a given key.
 */
 func (l *Leaf) Find(key int) string {
 	v, _ := (*l.getData())[key]

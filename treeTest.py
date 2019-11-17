@@ -1,5 +1,9 @@
 #!/bin/python3
 
+'''
+This script automates the test for the trie by doing some commands.
+'''
+
 import os,time
 
 
@@ -61,7 +65,7 @@ def testExpand():
 	print("[-->]  Found value")
 	time.sleep(5)
 	os.system("go run ./treecli -change -key 233 -value \"Das sollte sich geandert haben\" -id 545 -token 37")
-	print("[-->]  Found value")
+	print("[-->]  Changed value")
 	time.sleep(5)
 	os.system("go run ./treecli -traverse -id 545 -token 37")
 	print("[-->] Travsere value")
@@ -69,10 +73,9 @@ def testExpand():
 
 
 def main():
-	print("Welcome to trietestingScript")
-	print("Current Test will be Expand and Travserse after expanding")
+	print("[-->] Welcome to trietestingScript [<--]")
 	testExpand()
-	print("Script finished")
+	print("[-->] Script finished [<--]")
 
 
 if __name__ == "__main__":

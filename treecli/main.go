@@ -261,24 +261,17 @@ func (state *ClientRemoteActor) Receive(context actor.Context) {
 starts an actorsystem that can be reached remotely and can send messages to the service
 */
 func remotesend(mess interface{}) (bool, error) {
-
 	remote.Start("localhost:8090")
-
 	var wg sync.WaitGroup
-
 	context := actor.EmptyRootContext
-
 	props := actor.PropsFromProducer(func() actor.Actor {
 		wg.Add(1)
 		return &ClientRemoteActor{0, &wg}
 	})
-
 	pid := context.Spawn(props)
 	fmt.Println(pid)
-
 	time.Sleep(5 * time.Second)
 	fmt.Printf("Trying to connect")
-
 	spawnResponse, err := remote.SpawnNamed("localhost:8091", "remote", "hello", 5*time.Second)
 	if err == nil {
 		context.RequestWithCustomSender(spawnResponse.Pid, mess, pid)
