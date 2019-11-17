@@ -35,7 +35,7 @@ def TestChange():
 	'''
 	Function to change some values 
 	'''
-	os.system("go run ./treecli -insert -key 25000 -value \" Eigentlich will ich doch noch mehr Geld haben \" -id 545 -token 37")
+	os.system("go run ./treecli -change -key 25000 -value \" Eigentlich will ich doch noch mehr Geld haben \" -id 545 -token 37")
 	print("[+] Change value 25000")
 	time.sleep(2.5)
 
@@ -69,15 +69,6 @@ def TestTraverse():
 	print("[-->]  Traversed Trie")
 	time.sleep(2.5)
 
-def TestDeleteTrie():
-	'''
-	Function to test the DeleteTrie Command.
-	'''
-	os.system("go run ./treecli -delete-trie {}")
-	sys.stdout.write('yes')
-	press_and_release('enter')
-	print("[-->]  Deleted Trie")
-
 def TestcreateTrie(size):
 	'''
 	Function to create a trie.
@@ -91,8 +82,8 @@ def RunGoTests():
 	'''
 	Function to run the go test command in order to see the results of the Test.
 	'''
-	os.system("go test tree/... -cover -timeout 10")
-	print("[+] Created Trie")
+	os.system("go test ./tree/ -cover -timeout 10")
+	print("[+] Executed Tests")
 
 def main():
 	'''
@@ -105,7 +96,6 @@ def main():
 	TestChange()
 	TestDelete()
 	TestFind()
-	#TestDeleteTrie()
 	TestTraverse()
 	RunGoTests()
 	print("[+] Script finished!")
