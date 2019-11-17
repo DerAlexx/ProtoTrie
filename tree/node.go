@@ -105,13 +105,6 @@ type Nodeactor struct {
 }
 
 /*
-nodeAndLeafLogger will be a logger for the Servcie to follow along what happens in the nodes and leafs.
-*/
-func nodeAndLeafLogger(message string) {
-	//TODO missing
-}
-
-/*
 CreateBasicNode will return a Basic node containing the parentnode and a left, right leaf.
 */
 func CreateBasicNode(limit int) actor.Actor {
@@ -418,7 +411,8 @@ func sortMap(m map[int]string) (map[int]string, map[int]string, int) {
 		for i := 0; i < int(len(m)/2)+1; i++ {
 			left[keys[i]] = m[keys[i]]
 			if i+int(len(m)/2)+1 < len(keys) {
-				right[keys[i+int(len(m)/2)+1]] = m[i]
+				right[keys[i+int(len(m)/2)+1]] = m[keys[i+int(len(m)/2)+1]]
+
 			}
 		}
 	} else {
