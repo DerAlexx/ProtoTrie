@@ -2,6 +2,7 @@ package tree
 
 import (
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -25,7 +26,8 @@ func TestReturnAllKey(t *testing.T) {
 	ret := returnAllKey(testmap)
 
 	ret2 := []int{1, 3, 5, 6}
-
+	sort.Ints(ret)
+	sort.Ints(ret2)
 	abc := reflect.DeepEqual(ret, ret2)
 
 	if !abc {

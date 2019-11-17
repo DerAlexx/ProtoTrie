@@ -78,11 +78,18 @@ def TestcreateTrie(size):
 	print("[+] Created Trie")
 	time.sleep(2.5)
 
+def TestDeleteTrie():
+	'''
+	Function to test the DeleteTrie Command.
+	'''
+	os.system("go run ./treecli -delete-trie -id 545 -token 37")
+	print("[+]  Deleted Trie")
+
 def RunGoTests():
 	'''
 	Function to run the go test command in order to see the results of the Test.
 	'''
-	os.system("go test ./tree/ -cover")
+	os.system("go test ./tree/ ")
 	print("[+] Executed Tests")
 
 def main():
@@ -92,6 +99,8 @@ def main():
 	'''
 	print("[+] Script started!")
 	TestcreateTrie(2)
+	TestDeleteTrie()
+	return
 	TestInsert()
 	TestChange()
 	TestDelete()

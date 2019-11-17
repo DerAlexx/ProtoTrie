@@ -207,7 +207,7 @@ func main() {
 			time.Sleep(5 * time.Second)
 		} else if *deleteTrie {
 			reader := bufio.NewReader(os.Stdin)
-			fmt.Print("Are sure you wannt to delete the trie (yes/no)")
+			fmt.Print("Are sure you want to delete the trie (yes/no)")
 			text, _ := reader.ReadString('\n')
 			if strings.HasPrefix(text, "yes") {
 				fmt.Println("Trie will be deleted")
