@@ -137,29 +137,34 @@ After the execution it will return a message to the client.
 func (*ServerRemoteActor) Receive(context actor.Context) {
 	switch msg := context.Message().(type) {
 	case *messages.DeleteRequest:
+		PrintLog("Got Delete Message")
 		id := ID(int(msg.GetId()))
 		rootpid := getPID(id)
 		tok := Token(msg.GetToken())
 		if MatchIDandToken(id, tok) {
+			PrintLog("Sending Delete Message to RootNode")
 			context.RequestWithCustomSender(rootpid, tree.DeleteMessage{
 				PID: *context.Sender(),
 				Key: int(msg.GetKey()),
 			}, &globalpid)
 		} else {
+			PrintLog("Cannot send to RootNode because the Token does not match the ID")
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
 			})
 		}
 	case *messages.TraverseRequest:
+		PrintLog("Got Traverse Message")
 		id := ID(int(msg.GetId()))
 		rootpid := getPID(id)
 		tok := Token(msg.GetToken())
 		if MatchIDandToken(id, tok) {
-			fmt.Println("Sending TraverseMessage to RootNode")
+			PrintLog("Sending TraverseMessage to RootNode")
 			context.Send(rootpid, tree.TraverseMessage{
 				PID: *context.Sender(),
 			})
 		} else {
+			PrintLog("Cannot send to RootNode because the Token does not match the ID")
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
 			})
@@ -172,14 +177,15 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		id := ID(msg.GetId())
 		rootpid := getPID(id)
 		tok := Token(msg.GetToken())
-
+		PrintLog("Got Change Message")
 		if MatchIDandToken(id, tok) {
-			fmt.Println("Sending ChangeValueMessage to RootNode")
+			PrintLog("Sending Change Message to RootNode")
 			context.Send(rootpid, tree.ChangeValueMessage{
 				PID:     *context.Sender(),
 				Element: pa,
 			})
 		} else {
+			PrintLog("Cannot send to RootNode because the Token does not match the ID")
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
 			})
@@ -192,8 +198,9 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		id := ID(msg.GetId())
 		rootpid := getPID(id)
 		tok := Token(msg.GetToken())
-
+		PrintLog("Got Insert Message")
 		if MatchIDandToken(id, tok) {
+			PrintLog("Sending Insert Message to RootNode")
 			clientpid = *context.Sender()
 			context.Send(rootpid, tree.InsertMessage{
 				PID:        *context.Sender(),
@@ -202,6 +209,7 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 				PIDRoot:    *rootpid,
 			})
 		} else {
+			PrintLog("Cannot send to RootNode because the Token does not match the ID")
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
 			})
@@ -210,35 +218,42 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 		id := ID(msg.GetId())
 		rootpid := getPID(id)
 		tok := Token(msg.GetToken())
-
+		PrintLog("Got Find Message")
 		if MatchIDandToken(id, tok) {
+			PrintLog("Sending Find Message to RootNode")
 			context.Send(rootpid, tree.FindMessage{
 				PID: *context.Sender(),
 				Key: int(msg.GetKey()),
 			})
 		} else {
+			PrintLog("Cannot send to RootNode because the Token does not match the ID")
 			context.Respond(&messages.Response{
 				SomeValue: "Wrong Combination of ID and Token",
 			})
 		}
 	case *messages.CreateTreeRequest:
+		PrintLog("Got Create-Trie Message")
 		i, t, _ := AddNewTrie(int(msg.GetSize_()))
 		context.Respond(&messages.Response{
 			SomeValue: fmt.Sprintf("Your ID: %d, Your Token: %s", int(i), string(t)),
 		})
 	case *messages.DeleteTreeRequest:
+		PrintLog("Got Delete-Trie Message")
 		ret := deleteTrie(ID(msg.GetId()), Token(msg.GetToken()))
 		if ret {
+			PrintLog("Sending Delete Message to RootNode")
 			context.Respond(&messages.Response{
 				SomeValue: "Success",
 			})
 		} else {
+			PrintLog("Cannot send to RootNode because the Token does not match the ID")
 			context.Respond(&messages.Response{
 				SomeValue: "Couldnt delete the tree",
 			})
 		}
 	case *tree.WantBasicNodeActorsMessage:
 		size := msg.Size
+		PrintLog("Got WantbasicNodes Message")
 		Ncontext := actor.EmptyRootContext
 		propleft := actor.PropsFromProducer(func() actor.Actor {
 			return tree.CreateBasicNode(size)
@@ -248,12 +263,14 @@ func (*ServerRemoteActor) Receive(context actor.Context) {
 			return tree.CreateBasicNode(size)
 		})
 		pidright := *Ncontext.Spawn(propright)
+		PrintLog("Created BasicNodes")
 		context.Respond(tree.GetBasicNodesMessage{
 			LeftPid:  &pidleft,
 			RightPid: &pidright,
 			SSender:  &clientpid,
 		})
 		time.Sleep(5 * time.Second)
+		PrintLog("Resend Previous Insert")
 		context.Send(&msg.PMessageResult.(*tree.InsertMessage).PIDRoot, tree.InsertMessage{
 			PID:        msg.PMessageResult.(*tree.InsertMessage).PID,
 			Element:    msg.PMessageResult.(*tree.InsertMessage).Element,
