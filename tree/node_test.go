@@ -92,6 +92,18 @@ func TestHasValueToDecide(t *testing.T) {
 	}
 }
 
+func TestHasValueToDecideNoStoreable(t *testing.T) {
+
+	ac := CreateBasicNode(5)
+	a := ac.(*Nodeactor)
+
+	ret1, ret2 := a.HasValueToDecide()
+
+	if ret1 || ret2 != -1 {
+		t.Errorf("Expected return after hasvaluetodecide is = %t %d got %t %d", false, -1, ret1, ret2)
+	}
+}
+
 func TestFindBiggestKey(t *testing.T) {
 	testmap := make(map[int]string)
 	testmap[1] = "test1"
@@ -106,39 +118,149 @@ func TestFindBiggestKey(t *testing.T) {
 	}
 }
 
-/*
-func TestIsLeft(t *testing.T) {
+func TestFindBiggestKeyEmptyMap(t *testing.T) {
+	testmap := make(map[int]string)
 
-	if !abc {
-		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, false)
+	ret := findBiggestKey(testmap)
+
+	if ret != 0 {
+		t.Errorf("Expected return after findbiggestkey is = %d; got %d", 0, ret)
+	}
+}
+
+func TestIsLeftTrue1(t *testing.T) {
+
+	ac := CreateBasicNode(5)
+	a := ac.(*Nodeactor)
+
+	ret1 := a.IsLeft(5)
+
+	if !ret1 {
+		t.Errorf("Expected return after islefttrue1 is = %t; got %t", true, ret1)
+	}
+}
+
+func TestIsLeftTrue2(t *testing.T) {
+
+	ac := CreateBasicNode(5)
+	a := ac.(*Nodeactor)
+	a.SetStoreable(6)
+
+	ret1 := a.IsLeft(5)
+
+	if !ret1 {
+		t.Errorf("Expected return after islefttrue2 is = %t; got %t", true, ret1)
+	}
+}
+
+func TestIsLeftFalse(t *testing.T) {
+
+	ac := CreateBasicNode(5)
+	a := ac.(*Nodeactor)
+	a.SetStoreable(4)
+
+	ret1 := a.IsLeft(5)
+
+	if ret1 {
+		t.Errorf("Expected return after isleftfalse is = %t; got %t", false, ret1)
+	}
+}
+
+func TestUnionsLeaf(t *testing.T) {
+
+	ac := CreateBasicNode(5)
+	ab := ac.(*Nodeactor)
+	left := ab.LeftElement.(*Leaf)
+	right := ab.RightElement.(*Leaf)
+	left.Insert(1, "test1")
+	right.Insert(2, "test2")
+	right.Insert(3, "test3")
+
+	abc := unionLeafs(left, right)
+	testmap := make(map[int]string)
+	testmap[1] = "test1"
+	testmap[2] = "test2"
+	testmap[3] = "test3"
+
+	ret := reflect.DeepEqual(abc, testmap)
+
+	if !ret {
+		t.Errorf("Expected return after unionsleaf is = %t; got %t", true, ret)
 	}
 }
 
 func TestTraverseChild(t *testing.T) {
 
-	if !abc {
-		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, false)
+	ac := CreateBasicNode(5)
+	ab := ac.(*Nodeactor)
+	left := ab.LeftElement.(*Leaf)
+	right := ab.RightElement.(*Leaf)
+	left.Insert(1, "test1")
+	right.Insert(2, "test2")
+	right.Insert(3, "test3")
+
+	abc := unionLeafs(left, right)
+	testmap := make(map[int]string)
+	testmap[1] = "test1"
+	testmap[2] = "test2"
+	testmap[3] = "test3"
+
+	ret := reflect.DeepEqual(abc, testmap)
+
+	if !ret {
+		t.Errorf("Expected return after unionsleaf is = %t; got %t", true, ret)
 	}
 }
 
-func TestUnionsLeft(t *testing.T) {
+func TestIsFullTrue1(t *testing.T) {
 
-	if !abc {
-		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, false)
+	ac := CreateBasicNode(2)
+	ab := ac.(*Nodeactor)
+	ab.SetStoreable(2)
+	left := ab.LeftElement.(*Leaf)
+	right := ab.RightElement.(*Leaf)
+	left.Insert(1, "test1")
+	left.Insert(2, "test2")
+	right.Insert(3, "test3")
+
+	ret := ab.IsFull(ab.IsLeft(2))
+
+	if !ret {
+		t.Errorf("Expected return after returnallkeystrue1 is = %t; got %t", true, ret)
 	}
 }
 
-func TestIsFull(t *testing.T) {
+func TestIsFullTrue2(t *testing.T) {
 
-	if !abc {
-		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, false)
+	ac := CreateBasicNode(2)
+	ab := ac.(*Nodeactor)
+	ab.SetStoreable(2)
+	left := ab.LeftElement.(*Leaf)
+	right := ab.RightElement.(*Leaf)
+	left.Insert(1, "test1")
+	right.Insert(4, "test4")
+	right.Insert(3, "test3")
+
+	ret := ab.IsFull(ab.IsLeft(5))
+
+	if !ret {
+		t.Errorf("Expected return after returnallkeystrue2 is = %t; got %t", true, ret)
 	}
 }
 
-func TestExpand(t *testing.T) {
+func TestIsFullFalse(t *testing.T) {
 
-	if !abc {
-		t.Errorf("Expected return after returnallkeys is = %t; got %t", true, false)
+	ac := CreateBasicNode(2)
+	ab := ac.(*Nodeactor)
+	ab.SetStoreable(2)
+	left := ab.LeftElement.(*Leaf)
+	right := ab.RightElement.(*Leaf)
+	left.Insert(1, "test1")
+	right.Insert(4, "test4")
+
+	ret := ab.IsFull(ab.IsLeft(5))
+
+	if ret {
+		t.Errorf("Expected return after returnallkeysfalse is = %t; got %t", false, ret)
 	}
 }
-*/
