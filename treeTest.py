@@ -1,0 +1,83 @@
+#!/bin/python3
+
+'''
+This script automates the test for the trie by doing some commands.
+'''
+
+import os,time
+
+
+def testExpand():
+	os.system("go run ./treecli -create-trie 2")
+	print("[-->]  Created trie")
+	time.sleep(5)
+	os.system("go run ./treecli -insert -key 230 -value \"hahah\" -id 545 -token 37")
+	print("[-->]  Inserted first value")
+	time.sleep(5)
+	os.system("go run ./treecli -insert -key 342 -value \"PaulskleinerPenis\" -id 545 -token 37")
+	print("[-->] Inserted second value")
+	time.sleep(5)
+	os.system("go run ./treecli -insert -key 12 -value \"PaulskleinerPenis\" -id 545 -token 37")
+	print("[-->] Inserted third value")
+	time.sleep(5)
+	os.system("go run ./treecli -insert -key 226 -value \"das ist \" -id 545 -token 37")
+	print("[-->]  Inserted first value")
+	time.sleep(5)
+	os.system("go run ./treecli -insert -key 232 -value \"halloss\" -id 545 -token 37")
+	print("[-->] Inserted second value")
+	time.sleep(5)
+	os.system("go run ./treecli -find 226 -id 545 -token 37")
+	print("[-->]  Found value")
+	time.sleep(5)
+	os.system("go run ./treecli -insert -key 236 -value \"PaulskleinerPenis\" -id 545 -token 37")
+	print("[-->] Inserted 4th value")
+	time.sleep(5)
+	os.system("go run ./treecli -traverse -id 545 -token 37")
+	print("[-->] Travsere value")
+	time.sleep(5)
+	os.system("go run ./treecli -delete 342 -id 545 -token 37")
+	print("[-->]  Delete Value")
+	time.sleep(5)
+	os.system("go run ./treecli -traverse -id 545 -token 37")
+	print("[-->] Travsere value")
+	time.sleep(5)
+	os.system("go run ./treecli -delete 12 -id 545 -token 37")
+	print("[-->]  Delete value")
+	time.sleep(5)
+	os.system("go run ./treecli -traverse -id 545 -token 37")
+	print("[-->] Travsere value")
+	time.sleep(5)
+	os.system("go run ./treecli -delete 230 -id 545 -token 37")
+	print("[-->] Delete value")
+	time.sleep(5)
+	os.system("go run ./treecli -traverse -id 545 -token 37")
+	print("[-->] Travsere value")
+	os.system("go run ./treecli -insert -key 233 -value \"PaulskleinerPenis\" -id 545 -token 37")
+	print("[-->] Inserted new value")
+	time.sleep(5)
+	os.system("go run ./treecli -insert -key  229 -value \"hahah\" -id 545 -token 37")
+	print("[-->]  Inserted new value")
+	time.sleep(5)
+	os.system("go run ./treecli -find 229 -id 545 -token 37")
+	print("[-->]  Found value")
+	time.sleep(5)
+	os.system("go run ./treecli -find 233 -id 545 -token 37")
+	print("[-->]  Found value")
+	time.sleep(5)
+	os.system("go run ./treecli -change -key 233 -value \"Das sollte sich geandert haben\" -id 545 -token 37")
+	print("[-->]  Changed value")
+	time.sleep(5)
+	os.system("go run ./treecli -traverse -id 545 -token 37")
+	print("[-->] Travsere value")
+	time.sleep(2)
+
+
+def main():
+	print("[-->] Welcome to trietestingScript [<--]")
+	testExpand()
+	print("[-->] Script finished [<--]")
+
+
+if __name__ == "__main__":
+	main()
+

@@ -1,4 +1,60 @@
 syntax = "proto3";
+
 package messages;
 
-message HelloWorld {}
+// DeleteRequest contains the information to delete an entry from the tree. from client to service
+message DeleteRequest {
+    string Token = 1;
+    int32 Id = 2;
+    int32 Key = 3;
+}
+
+// FindRequest contains the information to find an entry in the tree. from client to service
+message FindRequest {
+    string Token = 1;
+    int32 Id = 2;
+    int32 Key = 3;
+}
+
+// TraverseRequest contains the information to traverse over a tree. from client to service
+message TraverseRequest {
+    string Token = 1;
+    int32 Id = 2;
+}
+
+// ChangeRequest contains the information to change an entry in the tree. from client to service
+message ChangeRequest {
+    string Token = 1;
+    int32 Id = 2;
+    int32 Key = 3;
+    string Value = 4;
+}
+
+// InsertRequest contains the information to insert an entry in the tree. from client to service
+message InsertRequest {
+    string Token = 1;
+    int32 Id = 2;
+    int32 Key = 3;
+    string Value = 4;
+}
+
+// CreateTreeRequest contains the information to create a tree. from client to service
+message CreateTreeRequest {
+    int32 Size = 1;
+}
+
+// DeleteTreeRequest contains the information to delete a tree. from client to service
+message DeleteTreeRequest {
+    string Token = 1;
+    int32 Id = 2;
+}
+
+// Response contains the response from the service
+message Response {
+    string SomeValue = 1;
+}
+
+// Response contains the response from the service
+message TraverseResponse {
+    map<int32, string> Arr = 1;
+}
